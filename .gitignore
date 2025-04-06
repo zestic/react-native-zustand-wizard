@@ -1,0 +1,46 @@
+# Build output
+lib/
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+# Native builds
+/ios/
+/android/
+
+# CocoaPods
+/ios/Pods/
+
+# Expo
+.expo/*
+
+# Package management
+yarn.lock
+web-build/
+
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
