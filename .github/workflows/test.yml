@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [18.17.0]
 
     steps:
     - uses: actions/checkout@v3
@@ -27,6 +27,9 @@ jobs:
         corepack enable
         corepack prepare yarn@4.1.1 --activate
     
+    - name: Initialize Yarn
+      run: yarn set version 4.1.1
+    
     - name: Debug Yarn version and config
       run: |
         yarn --version
@@ -35,9 +38,6 @@ jobs:
         yarn config get nodeLinker
         cat .yarnrc.yml
         ls -la .yarn/
-    
-    - name: Initialize Yarn
-      run: yarn set version 4.1.1
     
     - name: Install dependencies
       run: yarn install --mode=update-lockfile
