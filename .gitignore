@@ -35,7 +35,6 @@ Thumbs.db
 .expo/*
 
 # Package management
-yarn.lock
 web-build/
 
 .yarn/*

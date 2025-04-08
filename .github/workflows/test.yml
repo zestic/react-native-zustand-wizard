@@ -22,19 +22,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     
-    - name: Enable Corepack and setup Yarn
-      run: |
-        corepack enable
-        corepack prepare yarn@4.1.1 --activate
-        yarn set version 4.1.1
-    
-    - name: Debug Yarn setup
-      run: |
-        yarn --version
-        which yarn
-        yarn config get nodeLinker
-        cat .yarnrc.yml
-    
     - name: Install dependencies
       uses: borales/actions-yarn@v4
       with:
@@ -42,8 +29,13 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     
-    - name: Remove lockfile
-      run: rm -f yarn.lock
+    - name: Verify lockfile
+      run: |
+        if [ ! -f yarn.lock ]; then
+          echo "Error: yarn.lock file was not generated"
+          exit 1
+        fi
+        echo "yarn.lock file exists and will be committed"
     
     - name: Run tests with coverage
       uses: borales/actions-yarn@v4
