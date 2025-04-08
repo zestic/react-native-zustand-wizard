@@ -22,33 +22,33 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     
-    - name: Enable Corepack
+    - name: Enable Corepack and setup Yarn
       run: |
         corepack enable
         corepack prepare yarn@4.1.1 --activate
+        yarn set version 4.1.1
     
-    - name: Initialize Yarn
-      run: yarn set version 4.1.1
-    
-    - name: Debug Yarn version and config
+    - name: Debug Yarn setup
       run: |
         yarn --version
         which yarn
-        yarn config get enableGlobalCache
         yarn config get nodeLinker
         cat .yarnrc.yml
-        ls -la .yarn/
     
     - name: Install dependencies
-      run: yarn install --mode=update-lockfile
+      uses: borales/actions-yarn@v4
+      with:
+        cmd: install
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     
-    - name: Debug node_modules
-      run: |
-        ls -la node_modules
-        yarn why jest
+    - name: Remove lockfile
+      run: rm -f yarn.lock
     
     - name: Run tests with coverage
-      run: yarn test:coverage
+      uses: borales/actions-yarn@v4
+      with:
+        cmd: test:coverage
     
     - name: Upload coverage report
       uses: codecov/codecov-action@v3
