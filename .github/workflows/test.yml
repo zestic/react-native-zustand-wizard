@@ -27,16 +27,19 @@ jobs:
         corepack enable
         corepack prepare yarn@4.1.1 --activate
     
-    - name: Debug Yarn version
+    - name: Debug Yarn version and config
       run: |
         yarn --version
         which yarn
+        yarn config list
+        cat .yarnrc.yml
+        ls -la .yarn/
     
     - name: Initialize Yarn
       run: yarn set version 4.1.1
     
     - name: Install dependencies
-      run: yarn install
+      run: yarn install --mode=update-lockfile
     
     - name: Debug node_modules
       run: |
