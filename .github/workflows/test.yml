@@ -21,10 +21,16 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'yarn'
     
     - name: Enable Corepack
-      run: corepack enable
+      run: |
+        corepack enable
+        corepack prepare yarn@4.1.1 --activate
+    
+    - name: Debug Yarn version
+      run: |
+        yarn --version
+        which yarn
     
     - name: Install dependencies
       run: yarn install --immutable
