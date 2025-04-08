@@ -32,8 +32,11 @@ jobs:
         yarn --version
         which yarn
     
+    - name: Initialize Yarn
+      run: yarn set version 4.1.1
+    
     - name: Install dependencies
-      run: yarn install --immutable
+      run: yarn install
     
     - name: Run tests with coverage
       run: yarn test:coverage
