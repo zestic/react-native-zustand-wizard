@@ -36,9 +36,7 @@ jobs:
       run: yarn set version 4.1.1
     
     - name: Install dependencies
-      run: |
-        yarn install --mode=update-lockfile
-        yarn install --mode=update-lockfile --force
+      run: yarn install
     
     - name: Debug node_modules
       run: |
