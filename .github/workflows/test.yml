@@ -31,7 +31,8 @@ jobs:
       run: |
         yarn --version
         which yarn
-        yarn config list
+        yarn config get enableGlobalCache
+        yarn config get nodeLinker
         cat .yarnrc.yml
         ls -la .yarn/
     
