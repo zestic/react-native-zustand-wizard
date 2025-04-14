@@ -1,66 +1,83 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ButtonProps, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { WizardStoreType } from '../../types/store';
+import { WizardStoreType } from '../../stores/WizardStore';
 
-export type ButtonProps = {
-  label?: string;
-  onPress: () => void;
-  disabled: boolean;
-};
-
-export type NavigationButtonsProps = {
+export interface NavigationProps {
   store: WizardStoreType;
   onNext: () => void;
   onBack: () => void;
-  renderNextButton?: ((props: ButtonProps) => React.ReactNode) | undefined;
-  renderBackButton?: ((props: ButtonProps) => React.ReactNode) | undefined;
+  renderNextButton: ((props: ButtonProps) => React.ReactNode) | null;
+  renderBackButton: ((props: ButtonProps) => React.ReactNode) | null;
+}
+
+export const NavButton: React.FC<ButtonProps> = ({
+  title,
+  onPress,
+  disabled = false
+}) => {
+  return (
+    <TouchableOpacity
+      style={[styles.button, disabled && styles.disabledButton]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Text style={[styles.buttonText, disabled && styles.disabledText]}>
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
 };
 
-const DefaultButton: React.FC<ButtonProps> = ({ label, onPress, disabled }) => (
-  <TouchableOpacity
-    style={[styles.button, disabled && styles.buttonDisabled]}
-    onPress={onPress}
-    disabled={disabled}
-    testID={`${label?.toLowerCase()}-button`}
-  >
-    <Text style={styles.buttonContent}>
-      {label}
-    </Text>
-  </TouchableOpacity>
-);
 
-export const NavigationButtons: React.FC<NavigationButtonsProps> = observer(({
+export const NavigationButtons = observer(({
   store,
   onNext,
   onBack,
-  renderNextButton = (props: ButtonProps) => <DefaultButton {...props} label="Next" />,
-  renderBackButton = (props: ButtonProps) => <DefaultButton {...props} label="Back" />
-}) => {
-  const canMoveNext = store.getCanMoveNext();
-  const canMoveBack = store.getCanMoveBack();
-  
-  // Check if we're on the first visible step
-  const currentStepIndex = store.getVisibleStepIndex();
-  const isFirstStep = currentStepIndex === 0;
-  
-  // Check if the current step has hidden navigation
-  const currentStep = store.getCurrentStep();
-  const hideBackButton = isFirstStep || currentStep?.hidden === true;
+  renderNextButton = null,
+  renderBackButton = null
+}: NavigationProps) => {
+  const handleNext = () => {
+    onNext();
+  };
+
+  const handleBack = () => {
+    onBack();
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        {!hideBackButton && renderBackButton({
-          onPress: onBack,
-          disabled: !canMoveBack
-        })}
+        {!store.isFirstStep && (
+          renderBackButton ? (
+            renderBackButton({
+              title: store.previousButtonLabel,
+              onPress: handleBack,
+              disabled: !store.getCanMoveBack()
+            })
+          ) : (
+            <NavButton
+              title={store.previousButtonLabel}
+              onPress={handleBack}
+              disabled={!store.getCanMoveBack()}
+            />
+          )
+        )}
       </View>
       <View style={styles.buttonContainer}>
-        {renderNextButton({
-          onPress: onNext,
-          disabled: !canMoveNext
-        })}
+        {renderNextButton ? (
+          renderNextButton({
+            title: store.nextButtonLabel,
+            onPress: handleNext,
+            disabled: store.nextButtonDisabled
+          })
+        ) : (
+          <NavButton
+            title={store.nextButtonLabel}
+            onPress={handleNext}
+            disabled={store.nextButtonDisabled}
+          />
+        )}
       </View>
     </View>
   );
@@ -69,25 +86,30 @@ export const NavigationButtons: React.FC<NavigationButtonsProps> = observer(({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     padding: 16,
+    backgroundColor: '#f5f5f5',
   },
   buttonContainer: {
-    marginLeft: 8,
-  },
-  button: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#2196F3',
-    minWidth: 100,
+    flex: 1,
     alignItems: 'center',
   },
-  buttonDisabled: {
+  button: {
+    backgroundColor: '#2196F3',
+    padding: 12,
+    borderRadius: 8,
+    minWidth: 120,
+    alignItems: 'center',
+  },
+  disabledButton: {
     backgroundColor: '#E0E0E0',
   },
-  buttonContent: {
+  buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  disabledText: {
+    color: '#999999',
   },
 }); 

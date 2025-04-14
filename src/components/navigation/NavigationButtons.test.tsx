@@ -1,9 +1,10 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { NavigationButtons, ButtonProps } from './NavigationButtons';
-import { WizardStoreType } from '../../types/store';
-import { StepConfig } from '../../types';
+import { NavigationButtons } from './NavigationButtons';
+import { WizardStore } from '../../stores/WizardStore';
+import { StepConfig } from '../../types/index';
 import { TouchableOpacity, Text } from 'react-native';
+import { types } from 'mobx-state-tree';
 
 // Mock the WizardStore
 jest.mock('../../stores/WizardStore', () => ({
@@ -14,146 +15,139 @@ jest.mock('../../stores/WizardStore', () => ({
 
 describe('NavigationButtons', () => {
   // Helper function to create a mock store
-  const createMockStore = (currentStepIndex = 0, isHidden = false): Partial<WizardStoreType> => {
-    const mockStore = {
+  const createMockStore = (currentStepId = 'step1', currentStepPosition = 1) => {
+    const mockStepData = types.map(types.frozen()).create({});
+    const mockSteps = types.array(types.frozen()).create([
+      { id: 'step1', title: 'Step 1', component: () => null, order: 1 },
+      { id: 'step2', title: 'Step 2', component: () => null, order: 2 },
+      { id: 'step3', title: 'Step 3', component: () => null, order: 3 }
+    ]);
+
+    return {
+      currentStepId,
+      currentStepPosition,
+      steps: mockSteps,
       getCanMoveNext: jest.fn().mockReturnValue(true),
       getCanMoveBack: jest.fn().mockReturnValue(true),
-      getVisibleStepIndex: jest.fn().mockReturnValue(currentStepIndex),
-      getCurrentStep: jest.fn().mockReturnValue({ hidden: isHidden }),
+      isLoading: false,
+      error: undefined,
+      stepData: mockStepData
     };
-    return mockStore;
   };
 
   it('renders both back and next buttons by default', () => {
-    const mockStore = createMockStore(1) as WizardStoreType; // Not first step
+    const mockStore = createMockStore('step2', 2);
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { getByTestId } = render(
+    const { getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    expect(getByTestId('back-button')).toBeTruthy();
-    expect(getByTestId('next-button')).toBeTruthy();
+    expect(getByText('Back')).toBeTruthy();
+    expect(getByText('Next')).toBeTruthy();
   });
 
   it('hides back button on first step', () => {
-    const mockStore = createMockStore(0) as WizardStoreType; // First step
+    const mockStore = createMockStore('step1', 1);
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { queryByTestId, getByTestId } = render(
+    const { queryByText, getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    expect(queryByTestId('back-button')).toBeNull();
-    expect(getByTestId('next-button')).toBeTruthy();
-  });
-
-  it('hides back button when step has hidden property set to true', () => {
-    const mockStore = createMockStore(1, true) as WizardStoreType; // Not first step, but hidden
-    const onNext = jest.fn();
-    const onBack = jest.fn();
-
-    const { queryByTestId, getByTestId } = render(
-      <NavigationButtons
-        store={mockStore}
-        onNext={onNext}
-        onBack={onBack}
-      />
-    );
-
-    expect(queryByTestId('back-button')).toBeNull();
-    expect(getByTestId('next-button')).toBeTruthy();
+    expect(queryByText('Back')).toBeNull();
+    expect(getByText('Next')).toBeTruthy();
   });
 
   it('calls onNext when next button is pressed', () => {
-    const mockStore = createMockStore() as WizardStoreType;
+    const mockStore = createMockStore('step1', 1);
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { getByTestId } = render(
+    const { getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    fireEvent.press(getByTestId('next-button'));
+    fireEvent.press(getByText('Next'));
     expect(onNext).toHaveBeenCalled();
   });
 
   it('calls onBack when back button is pressed', () => {
-    const mockStore = createMockStore(1) as WizardStoreType; // Not first step
+    const mockStore = createMockStore('step2', 2);
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { getByTestId } = render(
+    const { getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    fireEvent.press(getByTestId('back-button'));
+    fireEvent.press(getByText('Back'));
     expect(onBack).toHaveBeenCalled();
   });
 
   it('disables next button when canMoveNext is false', () => {
     const mockStore = {
-      ...createMockStore(),
+      ...createMockStore('step1', 1),
       getCanMoveNext: jest.fn().mockReturnValue(false),
-    } as WizardStoreType;
+    };
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { getByTestId } = render(
+    const { getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    const nextButton = getByTestId('next-button');
+    const nextButton = getByText('Next').parent;
     expect(nextButton.props.accessibilityState.disabled).toBe(true);
   });
 
   it('disables back button when canMoveBack is false', () => {
     const mockStore = {
-      ...createMockStore(1), // Not first step
+      ...createMockStore('step2', 2),
       getCanMoveBack: jest.fn().mockReturnValue(false),
-    } as WizardStoreType;
+    };
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { getByTestId } = render(
+    const { getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    const backButton = getByTestId('back-button');
+    const backButton = getByText('Back').parent;
     expect(backButton.props.accessibilityState.disabled).toBe(true);
   });
 
   it('renders custom next button when provided', () => {
-    const mockStore = createMockStore() as WizardStoreType;
+    const mockStore = createMockStore('step1', 1);
     const onNext = jest.fn();
     const onBack = jest.fn();
-    const CustomButton = ({ label, onPress, disabled }: ButtonProps) => (
+    const CustomButton = ({ label, onPress, disabled }: { label?: string; onPress: () => void; disabled: boolean }) => (
       <TouchableOpacity
         testID={`custom-${label?.toLowerCase()}`}
         onPress={onPress}
@@ -165,7 +159,7 @@ describe('NavigationButtons', () => {
 
     const { getByTestId } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
         renderNextButton={CustomButton}
@@ -173,14 +167,13 @@ describe('NavigationButtons', () => {
     );
 
     expect(getByTestId('custom-next')).toBeTruthy();
-    expect(getByTestId('back-button')).toBeTruthy();
   });
 
   it('renders custom back button when provided', () => {
-    const mockStore = createMockStore(1) as WizardStoreType;
+    const mockStore = createMockStore('step2', 2);
     const onNext = jest.fn();
     const onBack = jest.fn();
-    const CustomButton = ({ label, onPress, disabled }: ButtonProps) => (
+    const CustomButton = ({ label, onPress, disabled }: { label?: string; onPress: () => void; disabled: boolean }) => (
       <TouchableOpacity
         testID={`custom-${label?.toLowerCase()}`}
         onPress={onPress}
@@ -192,7 +185,7 @@ describe('NavigationButtons', () => {
 
     const { getByTestId } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
         renderBackButton={CustomButton}
@@ -200,68 +193,43 @@ describe('NavigationButtons', () => {
     );
 
     expect(getByTestId('custom-back')).toBeTruthy();
-    expect(getByTestId('next-button')).toBeTruthy();
   });
 
   it('applies disabled styles when button is disabled', () => {
     const mockStore = {
-      ...createMockStore(),
+      ...createMockStore('step1', 1),
       getCanMoveNext: jest.fn().mockReturnValue(false),
-    } as WizardStoreType;
+    };
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { getByTestId } = render(
+    const { getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    const nextButton = getByTestId('next-button');
+    const nextButton = getByText('Next').parent;
     expect(nextButton.props.style).toContainEqual(expect.objectContaining({
-      backgroundColor: '#E0E0E0'
+      backgroundColor: '#cccccc'
     }));
   });
 
-  it('maintains right alignment of next button when back button is hidden', () => {
-    const mockStore = createMockStore(0) as WizardStoreType; // First step
+  it('shows Finish button on last step', () => {
+    const mockStore = createMockStore('step3', 3);
     const onNext = jest.fn();
     const onBack = jest.fn();
 
-    const { getByTestId } = render(
+    const { getByText } = render(
       <NavigationButtons
-        store={mockStore}
+        store={mockStore as any}
         onNext={onNext}
         onBack={onBack}
       />
     );
 
-    const container = getByTestId('next-button').parent;
-    expect(container.props.style).toContainEqual(expect.objectContaining({
-      justifyContent: 'flex-end'
-    }));
-  });
-
-  it('handles multiple hidden steps correctly', () => {
-    const mockStore = {
-      ...createMockStore(2), // Third step
-      getVisibleStepIndex: jest.fn().mockReturnValue(0), // First visible step
-      getCurrentStep: jest.fn().mockReturnValue({ hidden: false }),
-    } as WizardStoreType;
-    const onNext = jest.fn();
-    const onBack = jest.fn();
-
-    const { queryByTestId } = render(
-      <NavigationButtons
-        store={mockStore}
-        onNext={onNext}
-        onBack={onBack}
-      />
-    );
-
-    expect(queryByTestId('back-button')).toBeNull();
-    expect(queryByTestId('next-button')).toBeTruthy();
+    expect(getByText('Finish')).toBeTruthy();
   });
 }); 

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { StepperNavigation } from './StepperNavigation';
 import { WizardStore } from '../../stores/WizardStore';
+import { StepConfig } from '../../types/index';
 
 const meta = {
   title: 'Navigation/StepperNavigation',
@@ -10,74 +11,80 @@ const meta = {
 
 export default meta;
 
-const createStore = (steps = [
-  { id: 'step1', title: 'Step 1', component: () => null },
-  { id: 'step2', title: 'Step 2', hidden: true, component: () => null },
-  { id: 'step3', title: 'Step 3', component: () => null }
+const createStore = (currentStepId = 'step1', steps = [
+  { id: 'step1', title: 'Step 1', component: () => null, order: 1 },
+  { id: 'step2', title: 'Step 2', component: () => null, order: 2 },
+  { id: 'step3', title: 'Step 3', component: () => null, order: 3 }
 ]) => {
   return WizardStore.create({
-    currentStepId: 'step1',
-    completedSteps: [],
+    currentStepId,
     steps,
     stepData: {}
   });
 };
 
 export const Default = () => {
-  const store = createStore();
+  const store = createStore('step1');
   return (
     <View style={styles.container}>
-      <StepperNavigation store={store} />
+      <StepperNavigation
+        store={store}
+        onNext={() => {}}
+        onBack={() => {}}
+      />
     </View>
   );
 };
 
-export const WithHiddenSteps = () => {
-  const store = createStore([
-    { id: 'step1', title: 'Step 1', component: () => null },
-    { id: 'step2', title: 'Step 2', hidden: true, component: () => null },
-    { id: 'step3', title: 'Step 3', component: () => null },
-    { id: 'step4', title: 'Step 4', hidden: true, component: () => null },
-    { id: 'step5', title: 'Step 5', component: () => null }
+export const MiddleStep = () => {
+  const store = createStore('step2');
+  return (
+    <View style={styles.container}>
+      <StepperNavigation
+        store={store}
+        onNext={() => {}}
+        onBack={() => {}}
+      />
+    </View>
+  );
+};
+
+export const LastStep = () => {
+  const store = createStore('step3');
+  return (
+    <View style={styles.container}>
+      <StepperNavigation
+        store={store}
+        onNext={() => {}}
+        onBack={() => {}}
+      />
+    </View>
+  );
+};
+
+export const WithCompletedSteps = () => {
+  const store = createStore('step3', [
+    { id: 'step1', title: 'Step 1', component: () => null, order: 1 },
+    { id: 'step2', title: 'Step 2', component: () => null, order: 2 },
+    { id: 'step3', title: 'Step 3', component: () => null, order: 3 },
+    { id: 'step4', title: 'Step 4', component: () => null, order: 4 }
   ]);
   return (
     <View style={styles.container}>
-      <StepperNavigation store={store} />
+      <StepperNavigation
+        store={store}
+        onNext={() => {}}
+        onBack={() => {}}
+      />
     </View>
   );
 };
 
-export const WithCustomComponents = () => {
-  const store = createStore();
+export const WithCustomStepIndicator = () => {
+  const store = createStore('step2');
   const CustomStep = ({ index, isCompleted, isCurrent }: { index: number; isCompleted: boolean; isCurrent: boolean }) => (
-    <View
-      style={[
-        styles.customStep,
-        isCompleted && styles.completedStep,
-        isCurrent && styles.currentStep
-      ]}
-    >
-      <Text style={styles.stepContent}>
-        {isCompleted ? '✓' : index + 1}
-      </Text>
-    </View>
-  );
-
-  const CustomConnector = ({ isCompleted }: { isCompleted: boolean }) => (
-    <View style={[styles.customConnector, isCompleted && styles.completedConnector]} />
-  );
-
-  const CustomButton = ({ label, onPress, disabled }: { label?: string; onPress: () => void; disabled: boolean }) => (
-    <View
-      style={[
-        styles.customButton,
-        disabled && styles.disabledButton
-      ]}
-      onTouchEnd={disabled ? undefined : onPress}
-    >
-      <Text style={styles.buttonContent}>
-        {label}
-      </Text>
+    <View style={[styles.customStep, isCompleted && styles.completedStep, isCurrent && styles.currentStep]}>
+      <Text style={styles.stepText}>{index + 1}</Text>
     </View>
   );
 
@@ -85,10 +92,11 @@ export const WithCustomComponents = () => {
     <View style={styles.container}>
       <StepperNavigation
         store={store}
-        renderStep={CustomStep}
-        renderConnector={CustomConnector}
-        renderNextButton={CustomButton}
-        renderBackButton={CustomButton}
+        onNext={() => {}}
+        onBack={() => {}}
+        renderStep={({ index, isCompleted, isCurrent }) => (
+          <CustomStep index={index} isCompleted={isCompleted} isCurrent={isCurrent} />
+        )}
       />
     </View>
   );
@@ -97,49 +105,24 @@ export const WithCustomComponents = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#F5F5F5'
+    backgroundColor: '#f5f5f5',
   },
   customStep: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E0E0E0',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#e0e0e0',
     justifyContent: 'center',
     alignItems: 'center',
   },
   completedStep: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#4caf50',
   },
   currentStep: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#2196f3',
   },
-  stepContent: {
-    color: '#FFFFFF',
-    fontSize: 20,
+  stepText: {
+    color: '#ffffff',
     fontWeight: 'bold',
   },
-  customConnector: {
-    width: 60,
-    height: 4,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 4,
-  },
-  completedConnector: {
-    backgroundColor: '#4CAF50',
-  },
-  customButton: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#2196F3',
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#E0E0E0',
-  },
-  buttonContent: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  }
 }); 

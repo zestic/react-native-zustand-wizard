@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-const preview = {
+export const preview = {
   decorators: [
     (Story) => (
       <View style={{ padding: 16 }}>
@@ -19,4 +19,4 @@ const preview = {
   },
 };
 
-export default preview;
+

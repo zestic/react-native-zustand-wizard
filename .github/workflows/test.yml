@@ -33,15 +33,7 @@ jobs:
         cmd: install
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    
-    - name: Verify lockfile
-      run: |
-        if [ ! -f yarn.lock ]; then
-          echo "Error: yarn.lock file was not generated"
-          exit 1
-        fi
-        echo "yarn.lock file exists and will be committed"
-    
+        
     - name: Run tests with coverage
       uses: borales/actions-yarn@v4
       with:

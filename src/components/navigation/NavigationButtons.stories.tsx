@@ -12,19 +12,27 @@ export default meta;
 
 const createStore = (canMoveNext = true, canMoveBack = true, currentStepId = 'step1') => {
   return WizardStore.create({
-    currentStepId,
-    completedSteps: [],
+    stepData: {},
     steps: [
-      { id: 'step1', title: 'Step 1', component: () => null },
+      { 
+        id: 'step1', 
+        title: 'Step 1', 
+        component: () => null, 
+        order: 1
+      },
       { 
         id: 'step2', 
         title: 'Step 2', 
         component: () => null, 
-        ...(canMoveBack ? { previous: () => 'step1' } : {}),
-        ...(canMoveNext ? {} : { validate: () => false })
+        order: 2
+      },
+      {
+        id: 'step3',
+        title: 'Step 3',
+        component: () => null,
+        order: 3
       }
-    ],
-    stepData: {}
+    ]
   });
 };
 

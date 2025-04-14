@@ -1,25 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { WizardStoreType } from '../../types/store';
-
-export type StepProps = {
-  index: number;
-  isCompleted: boolean;
-  isCurrent: boolean;
-  stepId: string;
-};
-
-export type ConnectorProps = {
-  index: number;
-  isCompleted: boolean;
-};
-
-export type StepIndicatorProps = {
-  store: WizardStoreType;
-  renderStep?: ((props: StepProps) => React.ReactNode) | undefined;
-  renderConnector?: ((props: ConnectorProps) => React.ReactNode) | undefined;
-};
+import { StepProps, ConnectorProps, StepIndicatorProps } from '../../types/navigation';
 
 const DefaultStep: React.FC<StepProps> = ({ index, isCompleted, isCurrent }) => (
   <View
@@ -51,14 +33,16 @@ export const StepIndicator: React.FC<StepIndicatorProps> = observer(({
   renderStep = DefaultStep,
   renderConnector = DefaultConnector
 }) => {
-  const visibleSteps = store.getVisibleSteps();
-  const currentStepIndex = store.getCurrentStepIndex();
+  const steps = store.steps;
+  const currentStepPosition = store.currentStepPosition;
 
   return (
     <View style={styles.container}>
-      {visibleSteps.map((step, index) => {
-        const isCompleted = store.completedSteps.includes(step.id);
-        const isCurrent = index === currentStepIndex;
+      {steps.map((step: { id: string }, index: number) => {
+        // A step is completed if it's before the current step
+        const isCompleted = index < currentStepPosition;
+        // A step is current if it's the current step
+        const isCurrent = index === currentStepPosition;
 
         return (
           <React.Fragment key={step.id}>
@@ -68,11 +52,8 @@ export const StepIndicator: React.FC<StepIndicatorProps> = observer(({
               isCurrent,
               stepId: step.id
             })}
-            {index < visibleSteps.length - 1 && (
-              renderConnector({
-                index,
-                isCompleted
-              })
+            {index < steps.length - 1 && (
+              renderConnector({ isCompleted, index })
             )}
           </React.Fragment>
         );
@@ -111,9 +92,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 2,
     backgroundColor: '#E0E0E0',
-    marginHorizontal: 4,
+    marginHorizontal: 8,
   },
   completedConnector: {
     backgroundColor: '#4CAF50',
-  },
+  }
 }); 

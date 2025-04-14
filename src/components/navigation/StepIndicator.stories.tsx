@@ -10,21 +10,20 @@ const meta = {
 
 export default meta;
 
-const createStore = (steps = [
+const createStore = (currentStepId = 'step1', steps = [
   { id: 'step1', title: 'Step 1', component: () => null },
-  { id: 'step2', title: 'Step 2', hidden: true, component: () => null },
+  { id: 'step2', title: 'Step 2', component: () => null },
   { id: 'step3', title: 'Step 3', component: () => null }
 ]) => {
   return WizardStore.create({
-    currentStepId: 'step1',
-    completedSteps: [],
+    currentStepId,
     steps,
     stepData: {}
   });
 };
 
 export const Default = () => {
-  const store = createStore();
+  const store = createStore('step1');
   return (
     <View style={styles.container}>
       <StepIndicator store={store} />
@@ -32,24 +31,26 @@ export const Default = () => {
   );
 };
 
-export const WithHiddenSteps = () => {
-  const store = createStore([
-    { id: 'step1', title: 'Step 1', component: () => null },
-    { id: 'step2', title: 'Step 2', hidden: true, component: () => null },
-    { id: 'step3', title: 'Step 3', component: () => null },
-    { id: 'step4', title: 'Step 4', hidden: true, component: () => null },
-    { id: 'step5', title: 'Step 5', component: () => null }
-  ]);
+export const MiddleStep = () => {
+  const store = createStore('step2');
   return (
     <View style={styles.container}>
-      <Text style={styles.description}>Total Steps: 5 (2 hidden)</Text>
+      <StepIndicator store={store} />
+    </View>
+  );
+};
+
+export const LastStep = () => {
+  const store = createStore('step3');
+  return (
+    <View style={styles.container}>
       <StepIndicator store={store} />
     </View>
   );
 };
 
 export const WithCustomStep = () => {
-  const store = createStore();
+  const store = createStore('step2');
   const CustomStep = ({ index, isCompleted, isCurrent }: { index: number; isCompleted: boolean; isCurrent: boolean }) => (
     <View
       style={[
@@ -78,7 +79,7 @@ export const WithCustomStep = () => {
 };
 
 export const WithCustomConnector = () => {
-  const store = createStore();
+  const store = createStore('step2');
   const CustomConnector = ({ isCompleted }: { isCompleted: boolean }) => (
     <View style={[styles.customConnector, isCompleted && styles.completedConnector]} />
   );
