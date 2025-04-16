@@ -89,6 +89,8 @@
     "test:coverage": "jest --coverage",
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
     "build": "tsc",
     "prepare": "tsc",
     "storybook": "npx expo start",
