@@ -7,9 +7,14 @@ import { StepIndicator } from './StepIndicator';
 import { useNavigationContext } from '../../utils/wizardUtils';
 
 // Custom button component for stories
-const CustomButton = ({ onPress, title, disabled, testID }: { 
-  onPress: () => void; 
-  title: string; 
+const CustomButton = ({
+  onPress,
+  title,
+  disabled,
+  testID,
+}: {
+  onPress: () => void;
+  title: string;
   disabled?: boolean;
   testID?: string;
 }) => (
@@ -28,7 +33,7 @@ const CustomButton = ({ onPress, title, disabled, testID }: {
 // Custom step indicator component for stories
 const CustomStepIndicator = () => {
   const { currentStepPosition, totalSteps } = useNavigationContext();
-  
+
   return (
     <View style={styles.stepIndicator}>
       <Text style={styles.stepText}>
@@ -42,39 +47,51 @@ const CustomStepIndicator = () => {
 const createMockStore = () => {
   const steps = [
     { id: 'step1', order: 1, canMoveNext: true, nextLabel: 'Next' },
-    { id: 'step2', order: 2, canMoveNext: true, nextLabel: 'Next', previousLabel: 'Previous' },
-    { id: 'step3', order: 3, canMoveNext: true, nextLabel: 'Next', previousLabel: 'Previous' },
+    {
+      id: 'step2',
+      order: 2,
+      canMoveNext: true,
+      nextLabel: 'Next',
+      previousLabel: 'Previous',
+    },
+    {
+      id: 'step3',
+      order: 3,
+      canMoveNext: true,
+      nextLabel: 'Next',
+      previousLabel: 'Previous',
+    },
   ];
   return WizardStore.create({ steps });
 };
 
 const styles = StyleSheet.create({
-  customButton: {
-    padding: 10,
-    backgroundColor: '#007AFF',
-    borderRadius: 5,
-    minWidth: 100,
-    alignItems: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#CCCCCC',
-  },
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  customButton: {
+    alignItems: 'center',
+    backgroundColor: '#007AFF',
+    borderRadius: 5,
+    minWidth: 100,
+    padding: 10,
+  },
+  disabledButton: {
+    backgroundColor: '#CCCCCC',
   },
   disabledText: {
     color: '#666666',
   },
   stepIndicator: {
-    padding: 10,
     backgroundColor: '#F0F0F0',
     borderRadius: 5,
     marginVertical: 10,
+    padding: 10,
   },
   stepText: {
-    textAlign: 'center',
     fontSize: 14,
+    textAlign: 'center',
   },
 });
 
@@ -118,7 +135,14 @@ export const WithCustomStepIndicator: Story = {
 };
 
 // Adapter for StepIndicator to match WizardNavigation's expected props
-const StepIndicatorAdapter = ({ currentStep, totalSteps }: { currentStep: number; totalSteps: number; testID?: string }) => {
+const StepIndicatorAdapter = ({
+  currentStep,
+  totalSteps,
+}: {
+  currentStep: number;
+  totalSteps: number;
+  testID?: string;
+}) => {
   // Create a mock store with the correct currentStepPosition and totalSteps
   const steps = Array.from({ length: totalSteps }, (_, i) => ({
     id: `step${i + 1}`,
@@ -129,7 +153,7 @@ const StepIndicatorAdapter = ({ currentStep, totalSteps }: { currentStep: number
     currentStepId: `step${currentStep}`,
     currentStepPosition: currentStep,
     steps,
-    stepData: {}
+    stepData: {},
   });
   return <StepIndicator />;
 };
@@ -195,8 +219,20 @@ export const WithDisabledNext: Story = {
     store: (() => {
       const steps = [
         { id: 'step1', order: 1, canMoveNext: false, nextLabel: 'Next' },
-        { id: 'step2', order: 2, canMoveNext: true, nextLabel: 'Next', previousLabel: 'Previous' },
-        { id: 'step3', order: 3, canMoveNext: true, nextLabel: 'Next', previousLabel: 'Previous' },
+        {
+          id: 'step2',
+          order: 2,
+          canMoveNext: true,
+          nextLabel: 'Next',
+          previousLabel: 'Previous',
+        },
+        {
+          id: 'step3',
+          order: 3,
+          canMoveNext: true,
+          nextLabel: 'Next',
+          previousLabel: 'Previous',
+        },
       ];
       return WizardStore.create({ steps });
     })(),
@@ -215,4 +251,4 @@ export const WithDisabledNext: Story = {
       </View>
     );
   },
-}; 
+};

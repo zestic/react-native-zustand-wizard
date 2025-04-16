@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { WizardStoreType } from '../../../src/types';
 
@@ -34,7 +40,10 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
     }
   }, []);
 
-  const validateField = (name: keyof SecurityData, value: string): string | undefined => {
+  const validateField = (
+    name: keyof SecurityData,
+    value: string
+  ): string | undefined => {
     switch (name) {
       case 'username':
         if (!value) return 'Username is required';
@@ -43,9 +52,12 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
       case 'password':
         if (!value) return 'Password is required';
         if (value.length < 8) return 'Password must be at least 8 characters';
-        if (!/[A-Z]/.test(value)) return 'Password must contain at least one uppercase letter';
-        if (!/[a-z]/.test(value)) return 'Password must contain at least one lowercase letter';
-        if (!/[0-9]/.test(value)) return 'Password must contain at least one number';
+        if (!/[A-Z]/.test(value))
+          return 'Password must contain at least one uppercase letter';
+        if (!/[a-z]/.test(value))
+          return 'Password must contain at least one lowercase letter';
+        if (!/[0-9]/.test(value))
+          return 'Password must contain at least one number';
         break;
       case 'confirmPassword':
         if (!value) return 'Please confirm your password';
@@ -53,11 +65,13 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
         break;
       case 'securityQuestion':
         if (!value) return 'Security question is required';
-        if (value.length < 10) return 'Security question must be at least 10 characters';
+        if (value.length < 10)
+          return 'Security question must be at least 10 characters';
         break;
       case 'securityAnswer':
         if (!value) return 'Security answer is required';
-        if (value.length < 3) return 'Security answer must be at least 3 characters';
+        if (value.length < 3)
+          return 'Security answer must be at least 3 characters';
         break;
     }
     return undefined;
@@ -80,15 +94,19 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
     setErrors(newErrors);
     store.setStepData('security', newFormData);
 
-    const hasErrors = Object.values(newErrors).some(error => error !== undefined);
-    const isComplete = Object.values(newFormData).every(value => value && value.length > 0);
+    const hasErrors = Object.values(newErrors).some(
+      (error) => error !== undefined
+    );
+    const isComplete = Object.values(newFormData).every(
+      (value) => value && value.length > 0
+    );
     store.getCurrentStep()?.setCanMoveNext(!hasErrors && isComplete);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Security Information</Text>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Username</Text>
         <TextInput
@@ -98,9 +116,11 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
           placeholder="Enter your username"
           autoCapitalize="none"
         />
-        {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+        {errors.username && (
+          <Text style={styles.errorText}>{errors.username}</Text>
+        )}
       </View>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Password</Text>
         <TextInput
@@ -111,9 +131,11 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
           secureTextEntry
           autoCapitalize="none"
         />
-        {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+        {errors.password && (
+          <Text style={styles.errorText}>{errors.password}</Text>
+        )}
       </View>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Confirm Password</Text>
         <TextInput
@@ -124,9 +146,11 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
           secureTextEntry
           autoCapitalize="none"
         />
-        {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
+        {errors.confirmPassword && (
+          <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+        )}
       </View>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Security Question</Text>
         <TextInput
@@ -135,9 +159,11 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
           onChangeText={(value) => updateField('securityQuestion', value)}
           placeholder="Enter your security question"
         />
-        {errors.securityQuestion && <Text style={styles.errorText}>{errors.securityQuestion}</Text>}
+        {errors.securityQuestion && (
+          <Text style={styles.errorText}>{errors.securityQuestion}</Text>
+        )}
       </View>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Security Answer</Text>
         <TextInput
@@ -147,11 +173,16 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
           placeholder="Enter your security answer"
           autoCapitalize="none"
         />
-        {errors.securityAnswer && <Text style={styles.errorText}>{errors.securityAnswer}</Text>}
+        {errors.securityAnswer && (
+          <Text style={styles.errorText}>{errors.securityAnswer}</Text>
+        )}
       </View>
-      
+
       <TouchableOpacity
-        style={[styles.button, Object.keys(errors).length > 0 && styles.buttonDisabled]}
+        style={[
+          styles.button,
+          Object.keys(errors).length > 0 && styles.buttonDisabled,
+        ]}
         onPress={() => console.log('Continue pressed')}
         disabled={Object.keys(errors).length > 0}
       >
@@ -162,43 +193,11 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
 });
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 24,
-  },
-  formGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    padding: 8,
-    fontSize: 16,
-  },
-  inputError: {
-    borderColor: '#ff0000',
-  },
-  errorText: {
-    color: '#ff0000',
-    fontSize: 12,
-    marginTop: 4,
-  },
   button: {
-    backgroundColor: '#007bff',
-    padding: 16,
-    borderRadius: 4,
     alignItems: 'center',
+    backgroundColor: '#007bff',
+    borderRadius: 4,
+    padding: 16,
   },
   buttonDisabled: {
     backgroundColor: '#cccccc',
@@ -206,5 +205,37 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  container: {
+    backgroundColor: '#fff',
+    flex: 1,
+    padding: 16,
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  formGroup: {
+    marginBottom: 16,
+  },
+  input: {
+    borderColor: '#ddd',
+    borderRadius: 4,
+    borderWidth: 1,
+    fontSize: 16,
+    padding: 8,
+  },
+  inputError: {
+    borderColor: '#ff0000',
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 24,
   },
 });

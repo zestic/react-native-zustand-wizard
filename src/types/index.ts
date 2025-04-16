@@ -59,11 +59,23 @@ export interface DefaultTransitionProps {
 
 export type StepperNavigationProps = {
   store: IWizardStore;
-  renderStep?: ((props: { index: number; isCompleted: boolean; isCurrent: boolean; stepId: string }) => React.ReactNode) | undefined;
-  renderConnector?: ((props: { index: number; isActive: boolean; isCompleted: boolean }) => React.ReactNode) | undefined;
+  renderStep?:
+    | ((props: {
+        index: number;
+        isCompleted: boolean;
+        isCurrent: boolean;
+        stepId: string;
+      }) => React.ReactNode)
+    | undefined;
+  renderConnector?:
+    | ((props: {
+        index: number;
+        isActive: boolean;
+        isCompleted: boolean;
+      }) => React.ReactNode)
+    | undefined;
 };
 
 export type NavigationContextType = {
   store: IWizardStore;
 };
-

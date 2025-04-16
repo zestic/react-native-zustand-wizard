@@ -11,10 +11,10 @@ const StepModel = types
     nextLabel: types.optional(types.string, ''),
     previousLabel: types.optional(types.string, ''),
   })
-  .actions(self => ({
+  .actions((self) => ({
     setCanMoveNext(value: boolean) {
       self.canMoveNext = value;
-    }
+    },
   }));
 
 // Define StepModel Instance type
@@ -28,9 +28,9 @@ const WizardStoreBase = types
     error: types.optional(types.string, ''),
     stepData: types.optional(types.map(types.frozen()), {}),
     steps: types.array(StepModel),
-    totalSteps: types.optional(types.number, 0)
+    totalSteps: types.optional(types.number, 0),
   })
-  .preProcessSnapshot(snapshot => {
+  .preProcessSnapshot((snapshot) => {
     const steps = (snapshot.steps || []) as SnapshotIn<typeof StepModel>[];
     if (steps.length === 0) {
       throw new Error('Wizard must have at least one step');
@@ -47,21 +47,24 @@ const WizardStoreBase = types
       }
     }
 
-    let processedSnapshot = { ...snapshot };
+    const processedSnapshot = { ...snapshot };
 
-    if (processedSnapshot.currentStepId && !processedSnapshot.currentStepPosition) {
-      const step = steps.find(s => s.id === processedSnapshot.currentStepId);
+    if (
+      processedSnapshot.currentStepId &&
+      !processedSnapshot.currentStepPosition
+    ) {
+      const step = steps.find((s) => s.id === processedSnapshot.currentStepId);
       if (step) {
         processedSnapshot.currentStepPosition = step.order;
       } else {
-         processedSnapshot.currentStepId = sortedSteps[0]?.id || '';
-         processedSnapshot.currentStepPosition = sortedSteps[0]?.order || 0;
+        processedSnapshot.currentStepId = sortedSteps[0]?.id || '';
+        processedSnapshot.currentStepPosition = sortedSteps[0]?.order || 0;
       }
     } else if (!processedSnapshot.currentStepId && steps.length > 0) {
-       processedSnapshot.currentStepId = sortedSteps[0]?.id || '';
-       processedSnapshot.currentStepPosition = sortedSteps[0]?.order || 0;
+      processedSnapshot.currentStepId = sortedSteps[0]?.id || '';
+      processedSnapshot.currentStepPosition = sortedSteps[0]?.order || 0;
     }
-     processedSnapshot.totalSteps = steps.length;
+    processedSnapshot.totalSteps = steps.length;
 
     return processedSnapshot;
   })
@@ -70,7 +73,9 @@ const WizardStoreBase = types
     const getCurrentStep = (): StepModelType | undefined => {
       // Cast self once here if needed, though MST often infers correctly within .views
       const store = self as WizardStoreType;
-      return store.steps.find((s: StepModelType) => s.order === store.currentStepPosition);
+      return store.steps.find(
+        (s: StepModelType) => s.order === store.currentStepPosition
+      );
     };
 
     return {
@@ -78,14 +83,14 @@ const WizardStoreBase = types
       getCurrentStep,
 
       getStepById(id: string): StepModelType | undefined {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         return store.steps.find((s: StepModelType) => s.id === id);
       },
-      getStepData(stepId: string): any { 
-         const store = self as WizardStoreType;
+      getStepData(stepId: string): any {
+        const store = self as WizardStoreType;
         return store.stepData.get(stepId) || {};
       },
-      getWizardData(): Record<string, any> { 
+      getWizardData(): Record<string, any> {
         const store = self as WizardStoreType;
         const wizardData: Record<string, any> = {};
         store.steps.forEach((step: StepModelType) => {
@@ -97,24 +102,24 @@ const WizardStoreBase = types
         return wizardData;
       },
       get isFirstStep(): boolean {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         return store.currentStepPosition === 1;
       },
       get isLastStep(): boolean {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         return store.currentStepPosition === store.totalSteps;
       },
       getCanMoveBack(): boolean {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         return store.currentStepPosition > 1;
       },
       getCanMoveNext(): boolean {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();
         return currentStep ? currentStep.canMoveNext : false;
       },
       getNextStep(): StepModelType | undefined {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();
         if (!currentStep) return undefined;
         return store.steps
@@ -123,7 +128,7 @@ const WizardStoreBase = types
           .sort((a: StepModelType, b: StepModelType) => a.order - b.order)[0];
       },
       getPreviousStep(): StepModelType | undefined {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();
         if (!currentStep) return undefined;
         return store.steps
@@ -132,17 +137,17 @@ const WizardStoreBase = types
           .sort((a: StepModelType, b: StepModelType) => b.order - a.order)[0];
       },
       get nextButtonLabel(): string {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();
         return currentStep?.nextLabel || 'Next';
       },
       get previousButtonLabel(): string {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();
         return currentStep?.previousLabel || 'Previous';
       },
       getNavigationConfig(): NavigationConfig {
-         const store = self as WizardStoreType;
+        const store = self as WizardStoreType;
         return {
           isPreviousHidden: store.isFirstStep,
           isNextDisabled: !store.getCanMoveNext(),
@@ -164,7 +169,9 @@ const WizardStoreBase = types
       setError(error: string | null): void {
         self.error = error || '';
       },
-      setCurrentStep: flow(function* setCurrentStep(stepId: string): Generator<any, void, any> {
+      setCurrentStep: flow(function* setCurrentStep(
+        stepId: string
+      ): Generator<any, void, any> {
         const step = self.steps.find((s: StepModelType) => s.id === stepId);
         if (!step) {
           console.error(`Step with id ${stepId} not found`);
@@ -176,7 +183,9 @@ const WizardStoreBase = types
       moveNext: flow(function* moveNext(): Generator<any, void, any> {
         const nextStep = self.getNextStep();
         if (nextStep) {
-          const step = self.steps.find((s: StepModelType) => s.id === nextStep.id);
+          const step = self.steps.find(
+            (s: StepModelType) => s.id === nextStep.id
+          );
           if (step) {
             self.currentStepId = step.id;
             self.currentStepPosition = step.order;
@@ -186,14 +195,19 @@ const WizardStoreBase = types
       moveBack: flow(function* moveBack(): Generator<any, void, any> {
         const previousStep = self.getPreviousStep();
         if (previousStep) {
-          const step = self.steps.find((s: StepModelType) => s.id === previousStep.id);
+          const step = self.steps.find(
+            (s: StepModelType) => s.id === previousStep.id
+          );
           if (step) {
             self.currentStepId = step.id;
             self.currentStepPosition = step.order;
           }
         }
       }),
-      setStepData: flow(function* setStepData(stepId: string, data: any): Generator<any, void, any> {
+      setStepData: flow(function* setStepData(
+        stepId: string,
+        data: any
+      ): Generator<any, void, any> {
         const step = self.steps.find((s: StepModelType) => s.id === stepId);
         if (!step) {
           console.error(`Step with id ${stepId} not found`);
@@ -201,13 +215,19 @@ const WizardStoreBase = types
         }
         self.stepData.set(stepId, data);
       }),
-      updateField: flow(function* updateField(stepId: string, field: string, value: any): Generator<any, void, any> {
+      updateField: flow(function* updateField(
+        stepId: string,
+        field: string,
+        value: any
+      ): Generator<any, void, any> {
         const existingData = self.stepData.get(stepId) || {};
         const newData = { ...existingData, [field]: value };
         self.stepData.set(stepId, newData);
       }),
       reset: flow(function* reset(): Generator<any, void, any> {
-        const firstStep = self.steps.slice().sort((a: StepModelType, b: StepModelType) => a.order - b.order)[0];
+        const firstStep = self.steps
+          .slice()
+          .sort((a: StepModelType, b: StepModelType) => a.order - b.order)[0];
         if (firstStep) {
           self.currentStepId = firstStep.id;
           self.currentStepPosition = firstStep.order;
@@ -221,7 +241,7 @@ const WizardStoreBase = types
       }),
       afterCreate() {
         setWizardUtilsStore(self as IWizardStore);
-      }
+      },
     };
   });
 
@@ -241,5 +261,3 @@ export interface IWizardStore extends Instance<typeof WizardStore> {
   reset: () => Promise<void>;
   afterCreate: () => void;
 }
-
-

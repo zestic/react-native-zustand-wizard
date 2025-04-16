@@ -21,7 +21,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = observer(({ style }) => {
         style={[
           styles.step,
           isCompleted && styles.completedStep,
-          isCurrent && styles.currentStep
+          isCurrent && styles.currentStep,
         ]}
       />
     );
@@ -51,34 +51,34 @@ const StepIndicator: React.FC<StepIndicatorProps> = observer(({ style }) => {
 });
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16
-  },
-  step: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 4
+  completedConnector: {
+    backgroundColor: '#4CAF50',
   },
   completedStep: {
-    backgroundColor: '#4CAF50'
-  },
-  currentStep: {
-    backgroundColor: '#2196F3'
+    backgroundColor: '#4CAF50',
   },
   connector: {
+    backgroundColor: '#E0E0E0',
     flex: 1,
     height: 2,
-    backgroundColor: '#E0E0E0',
-    marginHorizontal: 4
+    marginHorizontal: 4,
   },
-  completedConnector: {
-    backgroundColor: '#4CAF50'
-  }
+  container: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 16,
+  },
+  currentStep: {
+    backgroundColor: '#2196F3',
+  },
+  step: {
+    backgroundColor: '#E0E0E0',
+    borderRadius: 6,
+    height: 12,
+    marginHorizontal: 4,
+    width: 12,
+  },
 });
 
-export { StepIndicator }; 
+export { StepIndicator };

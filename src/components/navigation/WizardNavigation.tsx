@@ -24,7 +24,13 @@ interface WizardNavigationProps {
 }
 
 // Default button component with proper disabled styling
-const DefaultButton = ({ onPress, title, disabled, testID, accessibilityState }: {
+const DefaultButton = ({
+  onPress,
+  title,
+  disabled,
+  testID,
+  accessibilityState,
+}: {
   onPress: () => void;
   title: string;
   disabled?: boolean;
@@ -38,52 +44,88 @@ const DefaultButton = ({ onPress, title, disabled, testID, accessibilityState }:
     testID={testID}
     accessibilityState={accessibilityState}
   >
-    <Text style={[styles.defaultButtonText, disabled && styles.defaultButtonTextDisabled]}>
+    <Text
+      style={[
+        styles.defaultButtonText,
+        disabled && styles.defaultButtonTextDisabled,
+      ]}
+    >
       {title}
     </Text>
   </TouchableOpacity>
 );
 
-export const WizardNavigation = observer(({ 
-  store, 
-  ButtonComponent = DefaultButton,
-  StepIndicatorComponent,
-  indicatorPosition = 'between'
-}: WizardNavigationProps) => {
-  if (!store) {
-    return null;
-  }
+export const WizardNavigation = observer(
+  ({
+    store,
+    ButtonComponent = DefaultButton,
+    StepIndicatorComponent,
+    indicatorPosition = 'between',
+  }: WizardNavigationProps) => {
+    if (!store) {
+      return null;
+    }
 
-  const {
-    isPreviousHidden,
-    isNextDisabled,
-    nextLabel,
-    previousLabel,
-    currentStepPosition,
-    totalSteps,
-    onNext,
-    onPrevious
-  } = useNavigationContext();
+    const {
+      isPreviousHidden,
+      isNextDisabled,
+      nextLabel,
+      previousLabel,
+      currentStepPosition,
+      totalSteps,
+      onNext,
+      onPrevious,
+    } = useNavigationContext();
 
-  const renderIndicator = () => (
-    StepIndicatorComponent && (
-      <StepIndicatorComponent
-        currentStep={currentStepPosition}
-        totalSteps={totalSteps}
-        testID="step-indicator"
-      />
-    )
-  );
+    const renderIndicator = () =>
+      StepIndicatorComponent && (
+        <StepIndicatorComponent
+          currentStep={currentStepPosition}
+          totalSteps={totalSteps}
+          testID="step-indicator"
+        />
+      );
 
-  // For 'between', render: [Prev Button] [StepIndicator] [Next Button]
-  if (indicatorPosition === 'between' && StepIndicatorComponent) {
+    // For 'between', render: [Prev Button] [StepIndicator] [Next Button]
+    if (indicatorPosition === 'between' && StepIndicatorComponent) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.rowBetween}>
+            <View style={styles.buttonWrapper}>
+              {!isPreviousHidden && (
+                <ButtonComponent
+                  onPress={onPrevious}
+                  title={previousLabel || ''}
+                  testID="back-button"
+                  disabled={false}
+                  accessibilityState={{ disabled: false }}
+                />
+              )}
+            </View>
+            <View style={styles.indicatorWrapper}>{renderIndicator()}</View>
+            <View style={styles.buttonWrapper}>
+              <ButtonComponent
+                onPress={onNext}
+                title={nextLabel || ''}
+                disabled={isNextDisabled}
+                testID="next-button"
+                accessibilityState={{ disabled: isNextDisabled }}
+              />
+            </View>
+          </View>
+        </View>
+      );
+    }
+
+    // For above/below or no indicator, render buttons in a row
     return (
       <View style={styles.container}>
-        <View style={styles.rowBetween}>
+        {indicatorPosition === 'above' && renderIndicator()}
+        <View style={styles.rowButtons}>
           <View style={styles.buttonWrapper}>
             {!isPreviousHidden && (
-              <ButtonComponent 
-                onPress={onPrevious} 
+              <ButtonComponent
+                onPress={onPrevious}
                 title={previousLabel || ''}
                 testID="back-button"
                 disabled={false}
@@ -91,10 +133,9 @@ export const WizardNavigation = observer(({
               />
             )}
           </View>
-          <View style={styles.indicatorWrapper}>{renderIndicator()}</View>
           <View style={styles.buttonWrapper}>
-            <ButtonComponent 
-              onPress={onNext} 
+            <ButtonComponent
+              onPress={onNext}
               title={nextLabel || ''}
               disabled={isNextDisabled}
               testID="next-button"
@@ -102,73 +143,27 @@ export const WizardNavigation = observer(({
             />
           </View>
         </View>
+        {indicatorPosition === 'below' && renderIndicator()}
       </View>
     );
   }
-
-  // For above/below or no indicator, render buttons in a row
-  return (
-    <View style={styles.container}>
-      {indicatorPosition === 'above' && renderIndicator()}
-      <View style={styles.rowButtons}>
-        <View style={styles.buttonWrapper}>
-          {!isPreviousHidden && (
-            <ButtonComponent 
-              onPress={onPrevious} 
-              title={previousLabel || ''}
-              testID="back-button"
-              disabled={false}
-              accessibilityState={{ disabled: false }}
-            />
-          )}
-        </View>
-        <View style={styles.buttonWrapper}>
-          <ButtonComponent 
-            onPress={onNext} 
-            title={nextLabel || ''}
-            disabled={isNextDisabled}
-            testID="next-button"
-            accessibilityState={{ disabled: isNextDisabled }}
-          />
-        </View>
-      </View>
-      {indicatorPosition === 'below' && renderIndicator()}
-    </View>
-  );
-});
+);
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-  },
-  rowButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 24,
-  },
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 24,
-  },
   buttonWrapper: {
     flex: 1,
     marginHorizontal: 8,
   },
-  indicatorWrapper: {
-    flexShrink: 1,
-    marginHorizontal: 8,
-    alignItems: 'center',
+  container: {
+    borderTopColor: '#E0E0E0',
+    borderTopWidth: 1,
+    padding: 16,
   },
   defaultButton: {
-    padding: 12,
+    alignItems: 'center',
     backgroundColor: '#007AFF',
     borderRadius: 8,
-    alignItems: 'center',
+    padding: 12,
   },
   defaultButtonDisabled: {
     backgroundColor: '#E0E0E0',
@@ -181,4 +176,21 @@ const styles = StyleSheet.create({
   defaultButtonTextDisabled: {
     color: '#999999',
   },
-}); 
+  indicatorWrapper: {
+    alignItems: 'center',
+    flexShrink: 1,
+    marginHorizontal: 8,
+  },
+  rowBetween: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 24,
+    justifyContent: 'space-between',
+  },
+  rowButtons: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 24,
+    justifyContent: 'space-between',
+  },
+});

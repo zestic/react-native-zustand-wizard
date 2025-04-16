@@ -38,11 +38,9 @@ const App: React.FC = () => {
   ];
 
   const handleComplete = () => {
-    Alert.alert(
-      'Registration Complete',
-      'Thank you for registering!',
-      [{ text: 'OK' }]
-    );
+    Alert.alert('Registration Complete', 'Thank you for registering!', [
+      { text: 'OK' },
+    ]);
   };
 
   return (
@@ -60,17 +58,17 @@ const App: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#F5F5F5',
+    flex: 1,
   },
   header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    padding: 16,
     backgroundColor: '#2196F3',
     color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    padding: 16,
+    textAlign: 'center',
   },
 });
 
-export default App; 
+export default App;

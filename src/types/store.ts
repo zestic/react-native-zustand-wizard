@@ -21,4 +21,6 @@ export interface WizardStoreViews {
 }
 
 // Combined store type
-export type WizardStore = WizardStoreType & WizardStoreActions & WizardStoreViews; 
+export type WizardStore = WizardStoreType &
+  WizardStoreActions &
+  WizardStoreViews;

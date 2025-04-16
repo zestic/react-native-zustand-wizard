@@ -27,7 +27,7 @@ export function setWizardUtilsStore(store: WizardStoreType) {
     return;
   }
   wizardStore = store;
-};
+}
 
 /**
  * Update a field in the wizard store
@@ -37,10 +37,12 @@ export function setWizardUtilsStore(store: WizardStoreType) {
  */
 export const updateField = (stepId: string, field: string, value: any) => {
   if (!wizardStore) {
-    console.error('Wizard store not initialized. Call setWizardUtilsStore first.');
+    console.error(
+      'Wizard store not initialized. Call setWizardUtilsStore first.'
+    );
     return;
   }
-  
+
   wizardStore.updateField(stepId, field, value);
 };
 
@@ -50,7 +52,6 @@ export const updateField = (stepId: string, field: string, value: any) => {
  * @returns A step context object with the step ID and helper functions
  */
 export const useStepContext = (stepId: string): StepContext => {
-  
   // Subscribe to changes in the wizardStore
   const subscribe = (callback: () => void) => {
     if (!wizardStore) return () => {};
@@ -78,7 +79,7 @@ export const useStepContext = (stepId: string): StepContext => {
 
   // Use useSyncExternalStore for reactivity
   useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-  
+
   // Return the step context with safe access to store methods
   return {
     stepId,
@@ -105,7 +106,7 @@ export const useStepContext = (stepId: string): StepContext => {
       if (currentStep) {
         currentStep.setCanMoveNext(canMoveNext);
       }
-    }
+    },
   };
 };
 
@@ -121,7 +122,6 @@ export interface NavigationConfig {
 }
 
 export function useNavigationContext(): NavigationConfig {
-  
   // Subscribe to changes in the wizardStore
   const subscribe = (callback: () => void) => {
     if (!wizardStore) return () => {};
@@ -154,7 +154,11 @@ export function useNavigationContext(): NavigationConfig {
       };
     }
     return wizardStore.getNavigationConfig();
-  }, [wizardStore?.currentStepPosition, wizardStore?.totalSteps, wizardStore?.getCurrentStep()?.canMoveNext]);
+  }, [
+    wizardStore?.currentStepPosition,
+    wizardStore?.totalSteps,
+    wizardStore?.getCurrentStep()?.canMoveNext,
+  ]);
 
   // Get the current config
   const getSnapshot = () => navigationConfig;
@@ -168,7 +172,9 @@ export function useNavigationContext(): NavigationConfig {
  */
 export function createNavigationConfig(): NavigationConfig {
   if (!wizardStore) {
-    console.warn('Wizard store not initialized. Call setWizardUtilsStore first.');
+    console.warn(
+      'Wizard store not initialized. Call setWizardUtilsStore first.'
+    );
     return {
       isPreviousHidden: true,
       isNextDisabled: true,
@@ -192,4 +198,4 @@ export function createNavigationConfig(): NavigationConfig {
     onNext: async () => wizardStore?.moveNext(),
     onPrevious: async () => wizardStore?.moveBack(),
   };
-} 
+}
