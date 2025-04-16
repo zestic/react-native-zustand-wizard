@@ -2,10 +2,10 @@ import React from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Wizard } from './Wizard';
 import { WizardStore } from '../stores/WizardStore';
-import { StepConfig } from '../types';
 import { useStepContext } from '../utils/wizardUtils';
 import { observer } from 'mobx-react-lite';
 import { Instance } from 'mobx-state-tree';
+import { Step } from '../types';
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
 // Base step components
 const Step1Component = observer(({ store }: { store: Instance<typeof WizardStore> }) => {
   console.log('Rendering Step1Component');
-  const { updateField, getStepData, canMoveNext } = useStepContext('step1', store);
+  const { updateField, getStepData, canMoveNext } = useStepContext('step1');
   const data = getStepData();
   
   // Enable/disable next button based on name field
@@ -104,7 +104,7 @@ const Step1Component = observer(({ store }: { store: Instance<typeof WizardStore
 const Step2Component: React.FC<{ store: Instance<typeof WizardStore> }> = observer(({ store }) => {
   console.log('Rendering Step2Component');
   // Use the step context hook to get the step ID and helper functions
-  const { updateField, getStepData, canMoveNext } = useStepContext('step2', store);
+  const { updateField, getStepData, canMoveNext } = useStepContext('step2');
   
   // Get the current step data from the store
   const data = getStepData();
@@ -131,7 +131,7 @@ const Step2Component: React.FC<{ store: Instance<typeof WizardStore> }> = observ
 const Step3Component: React.FC<{ store: Instance<typeof WizardStore> }> = observer(({ store }) => {
   console.log('Rendering Step3Component');
   // Use the step context hook to get the step ID and helper functions
-  const { updateField, getStepData } = useStepContext('step3', store);
+  const { updateField, getStepData } = useStepContext('step3');
   
   // Get the current step data from the store
   const stepData = getStepData();
@@ -148,14 +148,6 @@ const Step3Component: React.FC<{ store: Instance<typeof WizardStore> }> = observ
     </View>
   );
 });
-
-// Store creation helper
-const createStore = (steps: StepConfig[]) => {
-  return WizardStore.create({
-    steps,
-    stepData: {},
-  });
-};
 
 console.log('Loading story file');
 
@@ -179,10 +171,10 @@ export const Default = () => {
     setMounted(true);
   }, []);
 
-  const steps: StepConfig[] = [
-    { id: 'step1', component: Object.freeze(Step1Component), order: 1 },
-    { id: 'step2', component: Object.freeze(Step2Component), order: 2, nextLabel: 'Onwards' },
-    { id: 'step3', component: Object.freeze(Step3Component), order: 3, previousLabel: 'Backwards', canMoveNext: true }
+  const steps: Step[] = [
+    { id: 'step1', component: Step1Component, order: 1 },
+    { id: 'step2', component: Step2Component, order: 2, nextLabel: 'Onwards' },
+    { id: 'step3', component: Step3Component, order: 3, previousLabel: 'Backwards', canMoveNext: true }
   ];
 
   console.log('About to render Wizard with steps:', JSON.stringify(steps, null, 2));

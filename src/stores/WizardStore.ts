@@ -1,16 +1,15 @@
 import { types, Instance, flow, SnapshotIn } from 'mobx-state-tree';
-import { initializeWizardStore } from '../utils/wizardUtils';
-
+import { setWizardUtilsStore } from '../utils/wizardUtils';
+import { NavigationConfig } from '../utils/wizardUtils';
 
 // Define the Step Model
 const StepModel = types
   .model('Step', {
     id: types.identifier,
     order: types.number,
-    component: types.frozen(),
-    canMoveNext: types.optional(types.boolean, false),
-    nextLabel: types.maybe(types.frozen()),
-    previousLabel: types.maybe(types.frozen()),
+    canMoveNext: types.boolean,
+    nextLabel: types.optional(types.string, ''),
+    previousLabel: types.optional(types.string, ''),
   })
   .actions(self => ({
     setCanMoveNext(value: boolean) {
@@ -32,15 +31,12 @@ const WizardStoreBase = types
     totalSteps: types.optional(types.number, 0)
   })
   .preProcessSnapshot(snapshot => {
-    console.log('WizardStore preProcessSnapshot:', snapshot);
     const steps = (snapshot.steps || []) as SnapshotIn<typeof StepModel>[];
-    console.log('Raw steps from snapshot:', steps);
     if (steps.length === 0) {
       throw new Error('Wizard must have at least one step');
     }
 
     const sortedSteps = [...steps].sort((a, b) => a.order - b.order);
-    console.log('Sorted steps:', sortedSteps);
 
     for (let i = 0; i < sortedSteps.length; i++) {
       const step = sortedSteps[i];
@@ -108,52 +104,56 @@ const WizardStoreBase = types
          const store = self as WizardStoreType;
         return store.currentStepPosition === store.totalSteps;
       },
-      // Use the internal getCurrentStep helper
-      get getCanMoveNext(): boolean {
-        const currentStep = getCurrentStep(); // Use helper
-        return currentStep!.canMoveNext;
-      },
       getCanMoveBack(): boolean {
          const store = self as WizardStoreType;
         return store.currentStepPosition > 1;
       },
-      // Use the internal getCurrentStep helper
+      getCanMoveNext(): boolean {
+         const store = self as WizardStoreType;
+        const currentStep = store.getCurrentStep();
+        return currentStep ? currentStep.canMoveNext : false;
+      },
       getNextStep(): StepModelType | undefined {
-        const currentStep = getCurrentStep(); // Use helper
+         const store = self as WizardStoreType;
+        const currentStep = store.getCurrentStep();
         if (!currentStep) return undefined;
-        // Cast self only if needed to access .steps
-        const store = self as WizardStoreType; 
         return store.steps
           .slice()
           .filter((s: StepModelType) => s.order > currentStep.order)
           .sort((a: StepModelType, b: StepModelType) => a.order - b.order)[0];
       },
-      // Use the internal getCurrentStep helper
       getPreviousStep(): StepModelType | undefined {
-        const currentStep = getCurrentStep(); // Use helper
+         const store = self as WizardStoreType;
+        const currentStep = store.getCurrentStep();
         if (!currentStep) return undefined;
-         // Cast self only if needed to access .steps
-        const store = self as WizardStoreType;
         return store.steps
           .slice()
           .filter((s: StepModelType) => s.order < currentStep.order)
           .sort((a: StepModelType, b: StepModelType) => b.order - a.order)[0];
       },
-      // Use the other view directly via self
-      get nextButtonDisabled(): boolean {
-        const currentStep = getCurrentStep(); // Use helper
-        return !currentStep!.canMoveNext;
-      },
-      // Use the internal getCurrentStep helper
       get nextButtonLabel(): string {
-        const currentStep = getCurrentStep(); // Use helper
-        return currentStep?.nextLabel;
+         const store = self as WizardStoreType;
+        const currentStep = store.getCurrentStep();
+        return currentStep?.nextLabel || 'Next';
       },
-      // Use the internal getCurrentStep helper
       get previousButtonLabel(): string {
-         const currentStep = getCurrentStep(); // Use helper
-         return currentStep?.previousLabel;
-       },
+         const store = self as WizardStoreType;
+        const currentStep = store.getCurrentStep();
+        return currentStep?.previousLabel || 'Previous';
+      },
+      getNavigationConfig(): NavigationConfig {
+         const store = self as WizardStoreType;
+        return {
+          isPreviousHidden: store.isFirstStep,
+          isNextDisabled: !store.getCanMoveNext(),
+          nextLabel: store.nextButtonLabel,
+          previousLabel: store.previousButtonLabel,
+          currentStepPosition: store.currentStepPosition,
+          totalSteps: store.totalSteps,
+          onNext: async () => store.moveNext(),
+          onPrevious: async () => store.moveBack(),
+        };
+      },
     };
   })
   .actions((self) => {
@@ -203,8 +203,8 @@ const WizardStoreBase = types
       }),
       updateField: flow(function* updateField(stepId: string, field: string, value: any): Generator<any, void, any> {
         const existingData = self.stepData.get(stepId) || {};
-        existingData[field] = value;
-        self.stepData.set(stepId, existingData);
+        const newData = { ...existingData, [field]: value };
+        self.stepData.set(stepId, newData);
       }),
       reset: flow(function* reset(): Generator<any, void, any> {
         const firstStep = self.steps.slice().sort((a: StepModelType, b: StepModelType) => a.order - b.order)[0];
@@ -220,7 +220,7 @@ const WizardStoreBase = types
         self.error = '';
       }),
       afterCreate() {
-        initializeWizardStore(self as IWizardStore);
+        setWizardUtilsStore(self as IWizardStore);
       }
     };
   });

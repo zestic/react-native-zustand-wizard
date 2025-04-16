@@ -33,6 +33,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
+    "noEmit": false,
     "paths": {
       "*": [
         "src/*"

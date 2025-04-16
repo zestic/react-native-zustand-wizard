@@ -1,63 +1,51 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { StepProps, ConnectorProps, StepIndicatorProps } from '../../types/navigation';
+import { useNavigationContext } from '../../utils/wizardUtils';
 
-const DefaultStep: React.FC<StepProps> = ({ index, isCompleted, isCurrent }) => (
-  <View
-    style={[
-      styles.step,
-      isCompleted && styles.completedStep,
-      isCurrent && styles.currentStep
-    ]}
-    testID="step"
-  >
-    <Text style={styles.stepContent}>
-      {isCompleted ? '✓' : index + 1}
-    </Text>
-  </View>
-);
+interface StepIndicatorProps {
+  style?: any;
+}
 
-const DefaultConnector: React.FC<ConnectorProps> = ({ isCompleted }) => (
-  <View
-    style={[
-      styles.connector,
-      isCompleted && styles.completedConnector
-    ]}
-    testID="connector"
-  />
-);
+const StepIndicator: React.FC<StepIndicatorProps> = observer(({ style }) => {
+  const { currentStepPosition, totalSteps } = useNavigationContext();
 
-export const StepIndicator: React.FC<StepIndicatorProps> = observer(({
-  store,
-  renderStep = DefaultStep,
-  renderConnector = DefaultConnector
-}) => {
-  const steps = store.steps;
-  const currentStepPosition = store.currentStepPosition;
+  const renderStep = (index: number) => {
+    const isCompleted = index < currentStepPosition - 1;
+    const isCurrent = index === currentStepPosition - 1;
+
+    return (
+      <View
+        key={`step-${index}`}
+        testID="step"
+        style={[
+          styles.step,
+          isCompleted && styles.completedStep,
+          isCurrent && styles.currentStep
+        ]}
+      />
+    );
+  };
+
+  const renderConnector = (index: number) => {
+    const isCompleted = index < currentStepPosition - 1;
+    return (
+      <View
+        key={`connector-${index}`}
+        testID="connector"
+        style={[styles.connector, isCompleted && styles.completedConnector]}
+      />
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      {steps.map((step: { id: string }, index: number) => {
-        // A step is completed if it's before the current step
-        const isCompleted = index < currentStepPosition;
-        // A step is current if it's the current step
-        const isCurrent = index === currentStepPosition;
-
-        return (
-          <React.Fragment key={step.id}>
-            {renderStep({
-              index,
-              isCompleted,
-              isCurrent,
-              stepId: step.id
-            })}
-            {index < steps.length - 1 && (
-              renderConnector({ isCompleted, index })
-            )}
-          </React.Fragment>
-        );
-      })}
+    <View testID="step-indicator" style={[styles.container, style]}>
+      {Array.from({ length: totalSteps }).map((_, index) => (
+        <React.Fragment key={index}>
+          {renderStep(index)}
+          {index < totalSteps - 1 && renderConnector(index)}
+        </React.Fragment>
+      ))}
     </View>
   );
 });
@@ -67,34 +55,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    paddingVertical: 16
   },
   step: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: '#E0E0E0',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginHorizontal: 4
   },
   completedStep: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#4CAF50'
   },
   currentStep: {
-    backgroundColor: '#2196F3',
-  },
-  stepContent: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
+    backgroundColor: '#2196F3'
   },
   connector: {
-    width: 40,
+    flex: 1,
     height: 2,
     backgroundColor: '#E0E0E0',
-    marginHorizontal: 8,
+    marginHorizontal: 4
   },
   completedConnector: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#4CAF50'
   }
-}); 
+});
+
+export { StepIndicator }; 

@@ -26,7 +26,7 @@ interface PreferencesStepProps {
 
 export const PreferencesStep: React.FC<PreferencesStepProps> = observer(({ store, onComplete }) => {
   // Use the step context hook to get the step ID and helper functions
-  const { updateField, getStepData } = useStepContext('preferences', store);
+  const { updateField, getStepData } = useStepContext('preferences');
   
   // Get the current step data from the store
   const stepData = getStepData();

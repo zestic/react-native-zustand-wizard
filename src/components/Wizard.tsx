@@ -1,25 +1,27 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ButtonProps } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { WizardProps } from '../types';
-import { NavButton, NavigationButtons, NavigationProps } from './navigation/NavigationButtons';
+import { WizardNavigation } from './navigation/WizardNavigation';
 import { WizardStore } from '../stores/WizardStore';
-
-type WizardComponentProps = Omit<WizardProps, 'store'>;
 
 export const Wizard = observer(({ 
   steps,
   nextLabel = 'Next',
   previousLabel = 'Back',
   finishLabel = 'Finish',
-  renderStep,
-  renderNextButton = () => null,
-  renderBackButton = () => null,
   renderLoading,
   renderNavigation
-}: WizardComponentProps) => {
+}: WizardProps) => {
+  const componentRegistry = useMemo(() => {
+    const registry = new Map<string, React.ComponentType<any>>();
+    steps.forEach(step => {
+      registry.set(step.id, step.component);
+    });
+    return registry;
+  }, [steps]);
+
   const store = useMemo(() => {
-    console.log('Wizard steps:', steps);
     const lastStepOrder = Math.max(...steps.map(s => s.order), 0);
 
     if (!Array.isArray(steps) || steps.length === 0) {
@@ -27,27 +29,22 @@ export const Wizard = observer(({
     }
 
     const processedSteps = steps.map(step => {
-      console.log('Processing step:', step);
       const isLast = step.order === lastStepOrder;
       return {
-        ...step,
+        id: step.id,
+        order: step.order,
+        canMoveNext: step.canMoveNext ?? false,
         nextLabel: step.nextLabel ?? (isLast ? finishLabel : nextLabel),
         previousLabel: step.previousLabel ?? previousLabel,
-        canMoveNext: step.canMoveNext ?? false,
       };
     });
 
-    console.log('Creating store with steps:', processedSteps);
     return WizardStore.create({
-      steps: processedSteps,
-      stepData: {},
-      isLoading: false,
-      error: ''
+      steps: processedSteps
     });
   }, [steps, nextLabel, previousLabel, finishLabel]);
 
-  const currentStep = store.getCurrentStep();
-  const CurrentStepComponent = currentStep?.component;
+  const CurrentStepComponent = componentRegistry.get(store.currentStepId);
 
   if (store.isLoading) {
     return renderLoading ? renderLoading() : <View style={styles.loading}><Text>Loading...</Text></View>;
@@ -61,31 +58,16 @@ export const Wizard = observer(({
     );
   }
 
-  const defaultRenderNext = (props: ButtonProps) => <NavButton {...props} />;
-  const defaultRenderBack = (props: ButtonProps) => <NavButton {...props} />;
-
-  const navigationProps: NavigationProps = {
-    store,
-    onNext: () => store.moveNext(),
-    onBack: () => store.moveBack(),
-    renderNextButton: renderNextButton || defaultRenderNext,
-    renderBackButton: renderBackButton || defaultRenderBack
-  };
-
   return (
     <View style={styles.container}>
-      {currentStep && CurrentStepComponent && (
-        renderStep ? (
-           renderStep({ currentStep, store })
-        ) : (
-          <CurrentStepComponent store={store} />
-        )
+      {CurrentStepComponent && (
+        <CurrentStepComponent store={store} />
       )}
 
       {renderNavigation ? (
-        renderNavigation(navigationProps)
+        renderNavigation(store)
       ) : (
-        <NavigationButtons {...navigationProps} />
+        <WizardNavigation store={store} />
       )}
     </View>
   );

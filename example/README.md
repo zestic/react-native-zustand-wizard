@@ -121,7 +121,7 @@ import { View, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { Wizard } from '../../src/components/Wizard';
 import { WizardStore } from '../../src/stores/WizardStore';
-import { initializeWizardStore } from '../../src/utils/wizardUtils';
+import { setWizardUtilsStore } from '../../src/utils/wizardUtils';
 import { StepConfig } from '../../src/types';
 
 // Import step components
@@ -189,7 +189,7 @@ const RegistrationWizard: React.FC<RegistrationWizardProps> = observer(({
   });
   
   // Initialize the wizard store for the utility function
-  initializeWizardStore(store);
+  setWizardUtilsStore(store);
   
   // Preload data if needed
   useEffect(() => {

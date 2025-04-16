@@ -35,7 +35,7 @@ interface ReviewStepProps {
 
 export const ReviewStep: React.FC<ReviewStepProps> = observer(({ store, onComplete }) => {
   // Use the step context hook to get the step ID and helper functions
-  const { getStepData } = useStepContext('review', store);
+  const { getStepData } = useStepContext('review');
   
   // Get all wizard data
   const wizardData = store.getWizardData();
