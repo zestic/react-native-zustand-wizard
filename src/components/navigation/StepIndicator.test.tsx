@@ -3,6 +3,7 @@ import { render } from '@testing-library/react-native';
 import { View } from 'react-native';
 import { StepIndicator } from './StepIndicator';
 import { useNavigationContext } from '../../utils/wizardUtils';
+import { colors } from '../../theme/colors';
 
 jest.mock('../../utils/wizardUtils', () => {
   const actual = jest.requireActual('../../utils/wizardUtils');
@@ -30,9 +31,7 @@ describe('StepIndicator', () => {
       onNext: jest.fn(),
       onPrevious: jest.fn(),
     });
-    const { getAllByTestId } = render(
-      <StepIndicator />
-    );
+    const { getAllByTestId } = render(<StepIndicator />);
     const stepIndicators = getAllByTestId('step');
     const connectors = getAllByTestId('connector');
     expect(stepIndicators).toHaveLength(3);
@@ -51,9 +50,7 @@ describe('StepIndicator', () => {
       onPrevious: jest.fn(),
     });
     const customStyle = { backgroundColor: 'red' };
-    const { getByTestId } = render(
-      <StepIndicator style={customStyle} />
-    );
+    const { getByTestId } = render(<StepIndicator style={customStyle} />);
     const container = getByTestId('step-indicator');
     expect(container.props.style).toContainEqual(customStyle);
   });
@@ -69,25 +66,31 @@ describe('StepIndicator', () => {
       onNext: jest.fn(),
       onPrevious: jest.fn(),
     });
-    const { getAllByTestId } = render(
-      <StepIndicator />
-    );
+    const { getAllByTestId } = render(<StepIndicator />);
     const stepIndicators = getAllByTestId('step');
     const connectors = getAllByTestId('connector');
     // First step should be completed
-    expect(stepIndicators[0].props.style).toContainEqual(expect.objectContaining({
-      backgroundColor: '#4CAF50'
-    }));
-    expect(connectors[0].props.style).toContainEqual(expect.objectContaining({
-      backgroundColor: '#4CAF50'
-    }));
+    expect(stepIndicators[0].props.style).toContainEqual(
+      expect.objectContaining({
+        backgroundColor: colors.secondary,
+      })
+    );
+    expect(connectors[0].props.style).toContainEqual(
+      expect.objectContaining({
+        backgroundColor: colors.secondary,
+      })
+    );
     // Second step should be current
-    expect(stepIndicators[1].props.style).toContainEqual(expect.objectContaining({
-      backgroundColor: '#2196F3'
-    }));
+    expect(stepIndicators[1].props.style).toContainEqual(
+      expect.objectContaining({
+        backgroundColor: colors.primary,
+      })
+    );
     // Third step should be pending
-    expect(stepIndicators[2].props.style).toContainEqual(expect.objectContaining({
-      backgroundColor: '#E0E0E0'
-    }));
+    expect(stepIndicators[2].props.style).toContainEqual(
+      expect.objectContaining({
+        backgroundColor: colors.gray300,
+      })
+    );
   });
-}); 
+});

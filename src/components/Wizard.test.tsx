@@ -20,9 +20,12 @@ const mockNav = useNavigationContext as jest.Mock;
 const EmailStep = ({ store }) => (
   <View testID="email-step">
     <Text>Email Step</Text>
-    <Text testID="email-input" onPress={() => {
-      store.setStepData('email', { email: 'test@example.com' });
-    }}>
+    <Text
+      testID="email-input"
+      onPress={() => {
+        store.setStepData('email', { email: 'test@example.com' });
+      }}
+    >
       Set Email
     </Text>
   </View>
@@ -31,9 +34,12 @@ const EmailStep = ({ store }) => (
 const SubscriptionStep = ({ store }) => (
   <View testID="subscription-step">
     <Text>Subscription Step</Text>
-    <Text testID="plan-select" onPress={() => {
-      store.setStepData('subscription', { planId: 'basic' });
-    }}>
+    <Text
+      testID="plan-select"
+      onPress={() => {
+        store.setStepData('subscription', { planId: 'basic' });
+      }}
+    >
       Select Plan
     </Text>
   </View>
@@ -45,12 +51,12 @@ jest.mock('../stores/WizardStore', () => {
   return {
     WizardStore: {
       create: jest.fn().mockImplementation((snapshot) => {
-        const steps = snapshot.steps.map(step => ({
+        const steps = snapshot.steps.map((step) => ({
           id: step.id,
           order: step.order,
           canMoveNext: step.canMoveNext,
           nextLabel: step.nextLabel,
-          previousLabel: step.previousLabel
+          previousLabel: step.previousLabel,
         }));
 
         return {
@@ -67,10 +73,10 @@ jest.mock('../stores/WizardStore', () => {
           getWizardData: jest.fn(),
           setLoading: jest.fn(),
           setError: jest.fn(),
-          reset: jest.fn()
+          reset: jest.fn(),
         };
-      })
-    }
+      }),
+    },
   };
 });
 
@@ -80,14 +86,14 @@ describe('Wizard Component', () => {
       id: 'email',
       component: EmailStep,
       order: 1,
-      canMoveNext: false
+      canMoveNext: false,
     },
     {
       id: 'subscription',
       component: SubscriptionStep,
       order: 2,
-      canMoveNext: true
-    }
+      canMoveNext: true,
+    },
   ];
 
   describe('converts Step[] to StepModel[]', () => {
@@ -102,11 +108,7 @@ describe('Wizard Component', () => {
         onNext: jest.fn(),
         onPrevious: jest.fn(),
       });
-      render(
-        <Wizard
-          steps={steps}
-        />
-      );
+      render(<Wizard steps={steps} />);
 
       const expectedSteps = [
         {
@@ -114,20 +116,20 @@ describe('Wizard Component', () => {
           order: 1,
           canMoveNext: false,
           nextLabel: 'Next',
-          previousLabel: 'Back'
+          previousLabel: 'Back',
         },
         {
           id: 'subscription',
           order: 2,
           canMoveNext: true,
           nextLabel: 'Finish',
-          previousLabel: 'Back'
-        }
+          previousLabel: 'Back',
+        },
       ];
 
       // check the steps that are passed into the mock WizardStore
       expect(WizardStore.create).toHaveBeenCalledWith({
-        steps: expectedSteps
+        steps: expectedSteps,
       });
     });
 
@@ -145,9 +147,9 @@ describe('Wizard Component', () => {
       render(
         <Wizard
           steps={steps}
-          nextLabel='Proceed'
-          previousLabel='Regress'
-          finishLabel='Done'
+          nextLabel="Proceed"
+          previousLabel="Regress"
+          finishLabel="Done"
         />
       );
 
@@ -157,20 +159,20 @@ describe('Wizard Component', () => {
           order: 1,
           canMoveNext: false,
           nextLabel: 'Proceed',
-          previousLabel: 'Regress'
+          previousLabel: 'Regress',
         },
         {
           id: 'subscription',
           order: 2,
           canMoveNext: true,
           nextLabel: 'Done',
-          previousLabel: 'Regress'
-        }
+          previousLabel: 'Regress',
+        },
       ];
 
       // check the steps that are passed into the mock WizardStore
       expect(WizardStore.create).toHaveBeenCalledWith({
-        steps: expectedSteps
+        steps: expectedSteps,
       });
     });
 
@@ -198,14 +200,14 @@ describe('Wizard Component', () => {
           order: 2,
           nextLabel: 'Stop Forrest Stop',
           previousLabel: 'Go Back',
-        }
+        },
       ];
       render(
         <Wizard
           steps={steps}
-          nextLabel='Proceed'
-          previousLabel='Regress'
-          finishLabel='Done'
+          nextLabel="Proceed"
+          previousLabel="Regress"
+          finishLabel="Done"
         />
       );
 
@@ -215,20 +217,20 @@ describe('Wizard Component', () => {
           order: 1,
           canMoveNext: false,
           nextLabel: 'Run Forrest Run',
-          previousLabel: 'Regress'
+          previousLabel: 'Regress',
         },
         {
           id: 'subscription',
           order: 2,
           canMoveNext: false,
           nextLabel: 'Stop Forrest Stop',
-          previousLabel: 'Go Back'
-        }
+          previousLabel: 'Go Back',
+        },
       ];
 
       // check the steps that are passed into the mock WizardStore
       expect(WizardStore.create).toHaveBeenCalledWith({
-        steps: expectedSteps
+        steps: expectedSteps,
       });
     });
   });
@@ -244,11 +246,7 @@ describe('Wizard Component', () => {
       onNext: jest.fn(),
       onPrevious: jest.fn(),
     });
-    const { getByTestId } = render(
-      <Wizard
-        steps={steps}
-      />
-    );
+    const { getByTestId } = render(<Wizard steps={steps} />);
     expect(getByTestId('email-step')).toBeTruthy();
     expect(() => getByTestId('subscription-step')).toThrow();
   });
@@ -264,11 +262,7 @@ describe('Wizard Component', () => {
       onNext: jest.fn(),
       onPrevious: jest.fn(),
     });
-    const { getByTestId } = render(
-      <Wizard
-        steps={steps}
-      />
-    );
+    const { getByTestId } = render(<Wizard steps={steps} />);
     fireEvent.press(getByTestId('email-input'));
     await waitFor(() => {
       expect(getByTestId('email-step')).toBeTruthy();
@@ -292,14 +286,10 @@ describe('Wizard Component', () => {
         getWizardData: jest.fn(),
         setLoading: jest.fn(),
         setError: jest.fn(),
-        reset: jest.fn()
+        reset: jest.fn(),
       }));
 
-      const { getByText } = render(
-        <Wizard
-          steps={steps}
-        />
-      );
+      const { getByText } = render(<Wizard steps={steps} />);
 
       expect(getByText('Loading...')).toBeTruthy();
     });
@@ -320,16 +310,15 @@ describe('Wizard Component', () => {
         getWizardData: jest.fn(),
         setLoading: jest.fn(),
         setError: jest.fn(),
-        reset: jest.fn()
+        reset: jest.fn(),
       }));
 
-      const CustomLoading = () => <Text testID="custom-loading">Custom Loading...</Text>;
+      const CustomLoading = () => (
+        <Text testID="custom-loading">Custom Loading...</Text>
+      );
 
       const { getByTestId } = render(
-        <Wizard
-          steps={steps}
-          renderLoading={CustomLoading}
-        />
+        <Wizard steps={steps} renderLoading={CustomLoading} />
       );
 
       expect(getByTestId('custom-loading')).toBeTruthy();
@@ -353,14 +342,10 @@ describe('Wizard Component', () => {
         getWizardData: jest.fn(),
         setLoading: jest.fn(),
         setError: jest.fn(),
-        reset: jest.fn()
+        reset: jest.fn(),
       }));
 
-      const { getByText } = render(
-        <Wizard
-          steps={steps}
-        />
-      );
+      const { getByText } = render(<Wizard steps={steps} />);
 
       expect(getByText('Test error message')).toBeTruthy();
     });

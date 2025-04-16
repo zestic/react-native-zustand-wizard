@@ -3,6 +3,7 @@ import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 import { observer } from 'mobx-react';
 import { useNavigationContext } from '../../utils/wizardUtils';
 import { IWizardStore } from '../../stores/WizardStore';
+import { colors } from '../../theme/colors';
 
 type IndicatorPosition = 'above' | 'between' | 'below';
 
@@ -40,16 +41,11 @@ const DefaultButton = ({
   <TouchableOpacity
     onPress={onPress}
     disabled={disabled}
-    style={[styles.defaultButton, disabled && styles.defaultButtonDisabled]}
+    style={[styles.button, disabled && styles.disabledButton]}
     testID={testID}
     accessibilityState={accessibilityState}
   >
-    <Text
-      style={[
-        styles.defaultButtonText,
-        disabled && styles.defaultButtonTextDisabled,
-      ]}
-    >
+    <Text style={[styles.buttonText, disabled && styles.disabledButtonText]}>
       {title}
     </Text>
   </TouchableOpacity>
@@ -150,31 +146,36 @@ export const WizardNavigation = observer(
 );
 
 const styles = StyleSheet.create({
+  button: {
+    alignItems: 'center',
+    borderRadius: 8,
+    minWidth: 80,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  buttonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
   buttonWrapper: {
     flex: 1,
     marginHorizontal: 8,
   },
   container: {
-    borderTopColor: '#E0E0E0',
-    borderTopWidth: 1,
-    padding: 16,
-  },
-  defaultButton: {
     alignItems: 'center',
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 12,
+    borderTopColor: colors.gray200,
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  defaultButtonDisabled: {
-    backgroundColor: '#E0E0E0',
+  disabledButton: {
+    backgroundColor: colors.gray200,
   },
-  defaultButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  defaultButtonTextDisabled: {
-    color: '#999999',
+  disabledButtonText: {
+    color: colors.gray400,
   },
   indicatorWrapper: {
     alignItems: 'center',
@@ -190,7 +191,6 @@ const styles = StyleSheet.create({
   rowButtons: {
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 24,
     justifyContent: 'space-between',
   },
 });

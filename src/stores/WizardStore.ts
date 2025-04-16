@@ -1,4 +1,4 @@
-import { types, Instance, flow, SnapshotIn } from 'mobx-state-tree';
+import { types, Instance, SnapshotIn } from 'mobx-state-tree';
 import { setWizardUtilsStore } from '../utils/wizardUtils';
 import { NavigationConfig } from '../utils/wizardUtils';
 
@@ -19,6 +19,9 @@ const StepModel = types
 
 // Define StepModel Instance type
 type StepModelType = Instance<typeof StepModel>;
+
+// Define StepData type
+type StepData = Record<string, unknown>;
 
 const WizardStoreBase = types
   .model('WizardStore', {
@@ -86,17 +89,17 @@ const WizardStoreBase = types
         const store = self as WizardStoreType;
         return store.steps.find((s: StepModelType) => s.id === id);
       },
-      getStepData(stepId: string): any {
+      getStepData(stepId: string): StepData {
         const store = self as WizardStoreType;
-        return store.stepData.get(stepId) || {};
+        return (store.stepData.get(stepId) || {}) as StepData;
       },
-      getWizardData(): Record<string, any> {
+      getWizardData(): Record<string, StepData> {
         const store = self as WizardStoreType;
-        const wizardData: Record<string, any> = {};
+        const wizardData: Record<string, StepData> = {};
         store.steps.forEach((step: StepModelType) => {
           const stepData = store.stepData.get(step.id);
           if (stepData) {
-            wizardData[step.id] = stepData;
+            wizardData[step.id] = stepData as StepData;
           }
         });
         return wizardData;
@@ -169,9 +172,7 @@ const WizardStoreBase = types
       setError(error: string | null): void {
         self.error = error || '';
       },
-      setCurrentStep: flow(function* setCurrentStep(
-        stepId: string
-      ): Generator<any, void, any> {
+      setCurrentStep: async (stepId: string): Promise<void> => {
         const step = self.steps.find((s: StepModelType) => s.id === stepId);
         if (!step) {
           console.error(`Step with id ${stepId} not found`);
@@ -179,8 +180,8 @@ const WizardStoreBase = types
         }
         self.currentStepId = stepId;
         self.currentStepPosition = step.order;
-      }),
-      moveNext: flow(function* moveNext(): Generator<any, void, any> {
+      },
+      moveNext: async (): Promise<void> => {
         const nextStep = self.getNextStep();
         if (nextStep) {
           const step = self.steps.find(
@@ -191,8 +192,8 @@ const WizardStoreBase = types
             self.currentStepPosition = step.order;
           }
         }
-      }),
-      moveBack: flow(function* moveBack(): Generator<any, void, any> {
+      },
+      moveBack: async (): Promise<void> => {
         const previousStep = self.getPreviousStep();
         if (previousStep) {
           const step = self.steps.find(
@@ -203,28 +204,25 @@ const WizardStoreBase = types
             self.currentStepPosition = step.order;
           }
         }
-      }),
-      setStepData: flow(function* setStepData(
-        stepId: string,
-        data: any
-      ): Generator<any, void, any> {
+      },
+      setStepData: async (stepId: string, data: StepData): Promise<void> => {
         const step = self.steps.find((s: StepModelType) => s.id === stepId);
         if (!step) {
           console.error(`Step with id ${stepId} not found`);
           return;
         }
         self.stepData.set(stepId, data);
-      }),
-      updateField: flow(function* updateField(
+      },
+      updateField: async (
         stepId: string,
         field: string,
-        value: any
-      ): Generator<any, void, any> {
-        const existingData = self.stepData.get(stepId) || {};
+        value: unknown
+      ): Promise<void> => {
+        const existingData = (self.stepData.get(stepId) || {}) as StepData;
         const newData = { ...existingData, [field]: value };
         self.stepData.set(stepId, newData);
-      }),
-      reset: flow(function* reset(): Generator<any, void, any> {
+      },
+      reset: async (): Promise<void> => {
         const firstStep = self.steps
           .slice()
           .sort((a: StepModelType, b: StepModelType) => a.order - b.order)[0];
@@ -238,7 +236,7 @@ const WizardStoreBase = types
         self.stepData.clear();
         self.isLoading = false;
         self.error = '';
-      }),
+      },
       afterCreate() {
         setWizardUtilsStore(self as IWizardStore);
       },
@@ -249,15 +247,14 @@ export const WizardStore = WizardStoreBase;
 export type WizardStoreType = Instance<typeof WizardStore>;
 export type WizardStoreSnapshotIn = SnapshotIn<typeof WizardStore>;
 
-// Extend the store type to include all actions
 export interface IWizardStore extends Instance<typeof WizardStore> {
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   setCurrentStep: (stepId: string) => Promise<void>;
   moveNext: () => Promise<void>;
   moveBack: () => Promise<void>;
-  setStepData: (stepId: string, data: any) => Promise<void>;
-  updateField: (stepId: string, field: string, value: any) => Promise<void>;
+  setStepData: (stepId: string, data: StepData) => Promise<void>;
+  updateField: (stepId: string, field: string, value: unknown) => Promise<void>;
   reset: () => Promise<void>;
   afterCreate: () => void;
 }

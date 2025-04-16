@@ -1,254 +1,175 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import type { Meta, StoryObj } from '@storybook/react';
+import { View, StyleSheet, Text } from 'react-native';
+import { colors } from '../../theme/colors';
 import { WizardNavigation } from './WizardNavigation';
 import { WizardStore } from '../../stores/WizardStore';
-import { StepIndicator } from './StepIndicator';
-import { useNavigationContext } from '../../utils/wizardUtils';
 
-// Custom button component for stories
-const CustomButton = ({
-  onPress,
-  title,
-  disabled,
-  testID,
-}: {
+const styles = StyleSheet.create({
+  button: {
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    minWidth: 80,
+    padding: 12,
+  },
+  buttonDisabled: {
+    backgroundColor: colors.gray200,
+  },
+  buttonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  buttonTextDisabled: {
+    color: colors.gray400,
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  stepIndicator: {
+    alignItems: 'center',
+    backgroundColor: colors.gray100,
+    borderRadius: 8,
+    padding: 8,
+  },
+  storyContainer: {
+    marginBottom: 10,
+  },
+});
+
+export default {
+  title: 'Components/WizardNavigation',
+  component: WizardNavigation,
+};
+
+interface CustomButtonProps {
   onPress: () => void;
   title: string;
   disabled?: boolean;
   testID?: string;
+  accessibilityState?: { disabled: boolean };
+}
+
+const CustomButton: React.FC<CustomButtonProps> = ({
+  onPress,
+  title,
+  disabled,
+  testID,
 }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    disabled={disabled}
-    style={[styles.customButton, disabled && styles.disabledButton]}
+  <View
+    style={[styles.button, disabled && styles.buttonDisabled]}
     testID={testID}
   >
-    <Text style={[styles.buttonText, disabled && styles.disabledText]}>
+    <Text
+      style={[styles.buttonText, disabled && styles.buttonTextDisabled]}
+      onPress={onPress}
+    >
       {title}
     </Text>
-  </TouchableOpacity>
+  </View>
 );
 
-// Custom step indicator component for stories
-const CustomStepIndicator = () => {
-  const { currentStepPosition, totalSteps } = useNavigationContext();
+interface CustomStepIndicatorProps {
+  currentStep: number;
+  totalSteps: number;
+  testID?: string;
+}
 
+const CustomStepIndicator: React.FC<CustomStepIndicatorProps> = ({
+  currentStep,
+  totalSteps,
+  testID,
+}) => (
+  <View style={styles.stepIndicator} testID={testID}>
+    <Text>
+      Step {currentStep} of {totalSteps}
+    </Text>
+  </View>
+);
+
+export const Default = () => {
+  const store = WizardStore.create();
   return (
-    <View style={styles.stepIndicator}>
-      <Text style={styles.stepText}>
-        Step {currentStepPosition} of {totalSteps}
-      </Text>
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <WizardNavigation store={store} />
+      </View>
     </View>
   );
 };
 
-// Create a mock store with 3 steps
-const createMockStore = () => {
-  const steps = [
-    { id: 'step1', order: 1, canMoveNext: true, nextLabel: 'Next' },
-    {
-      id: 'step2',
-      order: 2,
-      canMoveNext: true,
-      nextLabel: 'Next',
-      previousLabel: 'Previous',
-    },
-    {
-      id: 'step3',
-      order: 3,
-      canMoveNext: true,
-      nextLabel: 'Next',
-      previousLabel: 'Previous',
-    },
-  ];
-  return WizardStore.create({ steps });
-};
-
-const styles = StyleSheet.create({
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-  },
-  customButton: {
-    alignItems: 'center',
-    backgroundColor: '#007AFF',
-    borderRadius: 5,
-    minWidth: 100,
-    padding: 10,
-  },
-  disabledButton: {
-    backgroundColor: '#CCCCCC',
-  },
-  disabledText: {
-    color: '#666666',
-  },
-  stepIndicator: {
-    backgroundColor: '#F0F0F0',
-    borderRadius: 5,
-    marginVertical: 10,
-    padding: 10,
-  },
-  stepText: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-});
-
-const meta: Meta<typeof WizardNavigation> = {
-  title: 'Navigation/WizardNavigation',
-  component: WizardNavigation,
-  decorators: [
-    (Story) => (
-      <View style={{ padding: 20, flex: 1, justifyContent: 'center' }}>
-        <Story />
+export const WithCustomButton = () => {
+  const store = WizardStore.create();
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <WizardNavigation store={store} ButtonComponent={CustomButton} />
       </View>
-    ),
-  ],
+    </View>
+  );
 };
 
-export default meta;
-
-type Story = StoryObj<typeof WizardNavigation>;
-
-// Basic story with default configuration
-export const Default: Story = {
-  args: {
-    store: createMockStore(),
-  },
-};
-
-// Story with custom button component
-export const WithCustomButton: Story = {
-  args: {
-    store: createMockStore(),
-    ButtonComponent: CustomButton,
-  },
-};
-
-// Story with custom step indicator
-export const WithCustomStepIndicator: Story = {
-  args: {
-    store: createMockStore(),
-    StepIndicatorComponent: CustomStepIndicator,
-  },
-};
-
-// Adapter for StepIndicator to match WizardNavigation's expected props
-const StepIndicatorAdapter = ({
-  currentStep,
-  totalSteps,
-}: {
-  currentStep: number;
-  totalSteps: number;
-  testID?: string;
-}) => {
-  // Create a mock store with the correct currentStepPosition and totalSteps
-  const steps = Array.from({ length: totalSteps }, (_, i) => ({
-    id: `step${i + 1}`,
-    order: i + 1,
-    canMoveNext: true,
-  }));
-  const store = WizardStore.create({
-    currentStepId: `step${currentStep}`,
-    currentStepPosition: currentStep,
-    steps,
-    stepData: {},
-  });
-  return <StepIndicator />;
-};
-
-// Story with step indicator above buttons
-export const IndicatorAbove: Story = {
-  args: {
-    store: createMockStore(),
-    StepIndicatorComponent: StepIndicatorAdapter,
-    indicatorPosition: 'above',
-  },
-};
-
-// Story with step indicator below buttons
-export const IndicatorBelow: Story = {
-  args: {
-    store: createMockStore(),
-    StepIndicatorComponent: StepIndicatorAdapter,
-    indicatorPosition: 'below',
-  },
-};
-
-// Story with step indicator between the buttons
-export const IndicatorBetween: Story = {
-  args: {
-    store: createMockStore(),
-    StepIndicatorComponent: StepIndicatorAdapter,
-    indicatorPosition: 'between',
-  },
-};
-
-// Story with all custom components
-export const FullyCustomized: Story = {
-  args: {
-    store: createMockStore(),
-    ButtonComponent: CustomButton,
-    StepIndicatorComponent: CustomStepIndicator,
-    indicatorPosition: 'between',
-  },
-};
-
-// Story demonstrating navigation actions
-export const WithNavigationActions: Story = {
-  args: {
-    store: createMockStore(),
-  },
-  render: (args) => {
-    const store = createMockStore();
-    return (
-      <View>
-        <Text style={{ marginBottom: 10 }}>
-          Current Step: {store.currentStepPosition + 1}
-        </Text>
-        <WizardNavigation {...args} store={store} />
+export const WithCustomStepIndicator = () => {
+  const store = WizardStore.create();
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <WizardNavigation
+          store={store}
+          StepIndicatorComponent={CustomStepIndicator}
+        />
       </View>
-    );
-  },
+    </View>
+  );
 };
 
-// Story with disabled next button
-export const WithDisabledNext: Story = {
-  args: {
-    store: (() => {
-      const steps = [
-        { id: 'step1', order: 1, canMoveNext: false, nextLabel: 'Next' },
-        {
-          id: 'step2',
-          order: 2,
-          canMoveNext: true,
-          nextLabel: 'Next',
-          previousLabel: 'Previous',
-        },
-        {
-          id: 'step3',
-          order: 3,
-          canMoveNext: true,
-          nextLabel: 'Next',
-          previousLabel: 'Previous',
-        },
-      ];
-      return WizardStore.create({ steps });
-    })(),
-  },
-  render: (args) => {
-    const store = args.store;
-    return (
-      <View>
-        <Text style={{ marginBottom: 10 }}>
-          Current Step: {store.currentStepPosition + 1}
-        </Text>
-        <Text style={{ marginBottom: 10 }}>
-          Next button is disabled because canMoveNext is false
-        </Text>
-        <WizardNavigation {...args} store={store} />
+export const IndicatorAbove = () => {
+  const store = WizardStore.create();
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <WizardNavigation store={store} indicatorPosition="above" />
       </View>
-    );
-  },
+    </View>
+  );
+};
+
+export const IndicatorBelow = () => {
+  const store = WizardStore.create();
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <WizardNavigation store={store} indicatorPosition="below" />
+      </View>
+    </View>
+  );
+};
+
+export const IndicatorBetween = () => {
+  const store = WizardStore.create();
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <WizardNavigation store={store} indicatorPosition="between" />
+      </View>
+    </View>
+  );
+};
+
+export const FullyCustomized = () => {
+  const store = WizardStore.create();
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <WizardNavigation
+          store={store}
+          ButtonComponent={CustomButton}
+          StepIndicatorComponent={CustomStepIndicator}
+          indicatorPosition="between"
+        />
+      </View>
+    </View>
+  );
 };

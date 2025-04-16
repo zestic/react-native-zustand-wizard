@@ -1,4 +1,10 @@
-import { setWizardUtilsStore, updateField, useStepContext, createNavigationConfig, useNavigationContext } from './wizardUtils';
+import {
+  setWizardUtilsStore,
+  updateField,
+  useStepContext,
+  createNavigationConfig,
+  useNavigationContext,
+} from './wizardUtils';
 import { WizardStore } from '../stores/WizardStore';
 import { renderHook, act } from '@testing-library/react-hooks';
 
@@ -19,20 +25,20 @@ jest.mock('../stores/WizardStore', () => {
         updateField: jest.fn(),
         getStepData: jest.fn().mockReturnValue({}),
         getStepById: jest.fn().mockReturnValue({
-          setCanMoveNext: jest.fn()
+          setCanMoveNext: jest.fn(),
         }),
         getCurrentStep: jest.fn().mockReturnValue({
           canMoveNext: true,
           nextLabel: 'Next',
-          previousLabel: 'Back'
+          previousLabel: 'Back',
         }),
         currentStepPosition: 1,
         totalSteps: 3,
         getCanMoveNext: jest.fn().mockReturnValue(true),
         moveNext: jest.fn(),
-        moveBack: jest.fn()
-      }))
-    }
+        moveBack: jest.fn(),
+      })),
+    },
   };
 });
 
@@ -66,7 +72,9 @@ describe('wizardUtils', () => {
 
     it('warns when trying to initialize with null store', () => {
       setWizardUtilsStore(null as any);
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Cannot initialize with null store');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Cannot initialize with null store'
+      );
     });
   });
 
@@ -74,7 +82,11 @@ describe('wizardUtils', () => {
     it('updates a field in the store', () => {
       setWizardUtilsStore(mockStore);
       updateField('step1', 'field1', 'value1');
-      expect(mockStore.updateField).toHaveBeenCalledWith('step1', 'field1', 'value1');
+      expect(mockStore.updateField).toHaveBeenCalledWith(
+        'step1',
+        'field1',
+        'value1'
+      );
     });
 
     it('logs error when store is not initialized', () => {
@@ -106,7 +118,11 @@ describe('wizardUtils', () => {
       act(() => {
         result.current.updateField('field1', 'value1');
       });
-      expect(mockStore.updateField).toHaveBeenCalledWith('step1', 'field1', 'value1');
+      expect(mockStore.updateField).toHaveBeenCalledWith(
+        'step1',
+        'field1',
+        'value1'
+      );
 
       // Test getStepData
       act(() => {
@@ -132,7 +148,7 @@ describe('wizardUtils', () => {
         getCurrentStep: jest.fn().mockReturnValue({
           nextLabel: 'Next',
           previousLabel: 'Back',
-          canMoveNext: false
+          canMoveNext: false,
         }),
         getCanMoveNext: jest.fn().mockReturnValue(false),
         moveNext: jest.fn().mockResolvedValue(undefined),
@@ -187,6 +203,5 @@ describe('wizardUtils', () => {
       expect(result.current.isNextDisabled).toBe(false);
       expect(result.current.currentStepPosition).toBe(2);
     });
-
-    });
-}); 
+  });
+});

@@ -15,7 +15,13 @@ jest.mock('../../utils/wizardUtils', () => {
 const mockNav = useNavigationContext as jest.Mock;
 
 describe('WizardNavigation', () => {
-  const CustomButton = ({ onPress, title, disabled, testID, accessibilityState }: any) => (
+  const CustomButton = ({
+    onPress,
+    title,
+    disabled,
+    testID,
+    accessibilityState,
+  }: any) => (
     <View testID={testID} accessibilityState={accessibilityState}>
       <Text>{title}</Text>
     </View>
@@ -42,8 +48,8 @@ describe('WizardNavigation', () => {
     });
 
     const { getByTestId, queryByTestId } = render(
-      <WizardNavigation 
-        store={{} as any} 
+      <WizardNavigation
+        store={{} as any}
         StepIndicatorComponent={CustomStepIndicator}
       />
     );
@@ -68,8 +74,8 @@ describe('WizardNavigation', () => {
     });
 
     const { getByTestId } = render(
-      <WizardNavigation 
-        store={{} as any} 
+      <WizardNavigation
+        store={{} as any}
         StepIndicatorComponent={CustomStepIndicator}
       />
     );
@@ -110,8 +116,8 @@ describe('WizardNavigation', () => {
     });
 
     const { getByTestId } = render(
-      <WizardNavigation 
-        store={{} as any} 
+      <WizardNavigation
+        store={{} as any}
         StepIndicatorComponent={CustomStepIndicator}
       />
     );
@@ -132,11 +138,15 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    const positions: ('above' | 'between' | 'below')[] = ['above', 'between', 'below'];
-    positions.forEach(position => {
+    const positions: ('above' | 'between' | 'below')[] = [
+      'above',
+      'between',
+      'below',
+    ];
+    positions.forEach((position) => {
       const { getByTestId } = render(
-        <WizardNavigation 
-          store={{} as any} 
+        <WizardNavigation
+          store={{} as any}
           StepIndicatorComponent={CustomStepIndicator}
           indicatorPosition={position}
         />
@@ -159,8 +169,8 @@ describe('WizardNavigation', () => {
     });
 
     const { getByTestId } = render(
-      <WizardNavigation 
-        store={{} as any} 
+      <WizardNavigation
+        store={{} as any}
         StepIndicatorComponent={CustomStepIndicator}
         indicatorPosition="between"
       />
@@ -188,7 +198,9 @@ describe('WizardNavigation', () => {
       onPrevious,
     });
 
-    const { getByTestId, queryByTestId } = render(<WizardNavigation store={{} as any} />);
+    const { getByTestId, queryByTestId } = render(
+      <WizardNavigation store={{} as any} />
+    );
 
     expect(queryByTestId('back-button')).toBeNull();
     fireEvent.press(getByTestId('next-button'));
@@ -263,8 +275,10 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    rerender(<WizardNavigation store={{} as any} ButtonComponent={CustomButton} />);
+    rerender(
+      <WizardNavigation store={{} as any} ButtonComponent={CustomButton} />
+    );
     nextButton = getByTestId('next-button');
     expect(nextButton.props.accessibilityState.disabled).toBe(false);
   });
-}); 
+});

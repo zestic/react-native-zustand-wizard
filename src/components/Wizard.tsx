@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { WizardProps } from '../types';
 import { WizardNavigation } from './navigation/WizardNavigation';
 import { WizardStore } from '../stores/WizardStore';
+import { colors } from '../theme/colors';
 
 export const Wizard = observer(
   ({
@@ -15,7 +16,10 @@ export const Wizard = observer(
     renderNavigation,
   }: WizardProps) => {
     const componentRegistry = useMemo(() => {
-      const registry = new Map<string, React.ComponentType<any>>();
+      const registry = new Map<
+        string,
+        React.ComponentType<Record<string, unknown>>
+      >();
       steps.forEach((step) => {
         registry.set(step.id, step.component);
       });
@@ -90,7 +94,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   errorText: {
-    color: 'red',
+    color: colors.error,
     fontSize: 16,
   },
   loading: {

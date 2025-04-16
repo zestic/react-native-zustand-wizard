@@ -16,7 +16,7 @@ const defaultSteps: TestStep[] = [
     component: () => null,
     canMoveNext: true,
     nextLabel: 'Next',
-    previousLabel: 'Back'
+    previousLabel: 'Back',
   },
   {
     id: 'step2',
@@ -24,21 +24,21 @@ const defaultSteps: TestStep[] = [
     component: () => null,
     canMoveNext: true,
     nextLabel: 'Finish',
-    previousLabel: 'Back'
-  }
+    previousLabel: 'Back',
+  },
 ];
 
 describe('WizardStore', () => {
   describe('initialization', () => {
     it('should create a store with default values', () => {
       const store = WizardStore.create({
-        steps: defaultSteps.map(step => ({
+        steps: defaultSteps.map((step) => ({
           id: step.id,
           order: step.order,
           canMoveNext: step.canMoveNext,
           nextLabel: step.nextLabel,
-          previousLabel: step.previousLabel
-        }))
+          previousLabel: step.previousLabel,
+        })),
       });
       expect(store.currentStepId).toBe('step1');
       expect(store.currentStepPosition).toBe(1);
@@ -53,28 +53,32 @@ describe('WizardStore', () => {
           id: 'step1',
           order: 1,
           component: () => null,
-          canMoveNext: true
+          canMoveNext: true,
         },
         {
           id: 'step2',
           order: 3,
           component: () => null,
-          canMoveNext: true
-        }
+          canMoveNext: true,
+        },
       ];
-      expect(() => WizardStore.create({
-        steps: invalidSteps.map(step => ({
-          id: step.id,
-          order: step.order,
-          canMoveNext: step.canMoveNext
-        }))
-      })).toThrow('Step orders must be sequential starting from 1');
+      expect(() =>
+        WizardStore.create({
+          steps: invalidSteps.map((step) => ({
+            id: step.id,
+            order: step.order,
+            canMoveNext: step.canMoveNext,
+          })),
+        })
+      ).toThrow('Step orders must be sequential starting from 1');
     });
 
     it('should throw error if no steps are provided', () => {
-      expect(() => WizardStore.create({
-        steps: []
-      })).toThrow('Wizard must have at least one step');
+      expect(() =>
+        WizardStore.create({
+          steps: [],
+        })
+      ).toThrow('Wizard must have at least one step');
     });
   });
 
@@ -83,13 +87,13 @@ describe('WizardStore', () => {
 
     beforeEach(() => {
       store = WizardStore.create({
-        steps: defaultSteps.map(step => ({
+        steps: defaultSteps.map((step) => ({
           id: step.id,
           order: step.order,
           canMoveNext: step.canMoveNext,
           nextLabel: step.nextLabel,
-          previousLabel: step.previousLabel
-        }))
+          previousLabel: step.previousLabel,
+        })),
       });
     });
 
@@ -109,7 +113,7 @@ describe('WizardStore', () => {
       store.setStepData('step2', { email: 'test@example.com' });
       expect(store.getWizardData()).toEqual({
         step1: { name: 'test' },
-        step2: { email: 'test@example.com' }
+        step2: { email: 'test@example.com' },
       });
     });
 
@@ -162,13 +166,13 @@ describe('WizardStore', () => {
 
     beforeEach(() => {
       store = WizardStore.create({
-        steps: defaultSteps.map(step => ({
+        steps: defaultSteps.map((step) => ({
           id: step.id,
           order: step.order,
           canMoveNext: step.canMoveNext,
           nextLabel: step.nextLabel,
-          previousLabel: step.previousLabel
-        }))
+          previousLabel: step.previousLabel,
+        })),
       });
     });
 
@@ -219,7 +223,7 @@ describe('WizardStore', () => {
       // Second update
       await store.updateField('step1', 'email', 'test@example.com');
       const secondUpdate = store.getStepData('step1');
-      
+
       // Check if we still have both fields
       expect(secondUpdate.name).toBe('test');
       expect(secondUpdate.email).toBe('test@example.com');
@@ -237,4 +241,3 @@ describe('WizardStore', () => {
     });
   });
 });
-

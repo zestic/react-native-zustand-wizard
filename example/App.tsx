@@ -7,6 +7,7 @@ import { SecurityStep } from './components/steps/SecurityStep';
 import { PreferencesStep } from './components/steps/PreferencesStep';
 import { ReviewStep } from './components/steps/ReviewStep';
 import { Step } from '../src/types';
+import { theme } from '../src/theme';
 
 const App: React.FC = () => {
   const steps: Step[] = [
@@ -51,6 +52,7 @@ const App: React.FC = () => {
         nextLabel="Next"
         previousLabel="Back"
         finishLabel="Complete"
+        onComplete={handleComplete}
       />
     </View>
   );
@@ -58,12 +60,12 @@ const App: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: theme.colors.background,
     flex: 1,
   },
   header: {
-    backgroundColor: '#2196F3',
-    color: 'white',
+    backgroundColor: theme.colors.primary,
+    color: theme.colors.white,
     fontSize: 24,
     fontWeight: 'bold',
     padding: 16,

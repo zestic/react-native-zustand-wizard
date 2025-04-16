@@ -1,26 +1,39 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { colors } from '../../theme/colors';
 import { StepIndicator } from './StepIndicator';
 import { WizardStore } from '../../stores/WizardStore';
 
-const meta = {
-  title: 'Navigation/StepIndicator',
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  stepIndicator: {
+    alignItems: 'center',
+    backgroundColor: colors.gray100,
+    borderRadius: 8,
+    padding: 8,
+  },
+  storyContainer: {
+    marginBottom: 10,
+  },
+});
+
+export default {
+  title: 'Components/StepIndicator',
   component: StepIndicator,
 };
 
-export default meta;
-
-const createStore = (
-  currentStepPosition = 1,
-  steps = [
+const createStore = (currentStepPosition = 1) => {
+  const steps = [
     { id: 'step1', order: 1, canMoveNext: true },
     { id: 'step2', order: 2, canMoveNext: true },
     { id: 'step3', order: 3, canMoveNext: true },
-  ]
-) => {
-  const currentStep = steps.find((step) => step.order === currentStepPosition);
+  ];
   return WizardStore.create({
-    currentStepId: currentStep ? currentStep.id : steps[0].id,
+    currentStepId: `step${currentStepPosition}`,
     currentStepPosition,
     steps,
     stepData: {},
@@ -28,53 +41,45 @@ const createStore = (
 };
 
 export const Default = () => {
-  const store = createStore(1);
+  createStore(1);
   return (
     <View style={styles.container}>
-      <StepIndicator />
-    </View>
-  );
-};
-
-export const MiddleStep = () => {
-  const store = createStore(2);
-  return (
-    <View style={styles.container}>
-      <StepIndicator />
-    </View>
-  );
-};
-
-export const LastStep = () => {
-  const store = createStore(3);
-  return (
-    <View style={styles.container}>
-      <StepIndicator />
+      <View style={styles.storyContainer}>
+        <StepIndicator />
+      </View>
     </View>
   );
 };
 
 export const WithCustomStyle = () => {
-  const store = createStore(2);
+  createStore(2);
   return (
     <View style={styles.container}>
-      <Text style={styles.description}>StepIndicator with custom style</Text>
-      <StepIndicator
-        style={{ backgroundColor: '#EEE', borderRadius: 8, padding: 8 }}
-      />
+      <View style={styles.storyContainer}>
+        <StepIndicator style={styles.stepIndicator} />
+      </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#F5F5F5',
-    padding: 16,
-  },
-  description: {
-    color: '#666666',
-    fontSize: 14,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-});
+export const LastStep = () => {
+  createStore(3);
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <StepIndicator />
+      </View>
+    </View>
+  );
+};
+
+export const WithTestID = () => {
+  createStore(1);
+  return (
+    <View style={styles.container}>
+      <View style={styles.storyContainer}>
+        <StepIndicator testID="test-step-indicator" />
+      </View>
+    </View>
+  );
+};
