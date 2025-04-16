@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { ButtonProps } from 'react-native';
-import { WizardStoreType } from './store';
+import { WizardStoreType } from './common';
 
 export interface StepProps {
   index: number;
@@ -10,8 +10,8 @@ export interface StepProps {
 }
 
 export interface ConnectorProps {
-  isCompleted: boolean;
   index: number;
+  isCompleted: boolean;
 }
 
 export interface StepIndicatorProps {

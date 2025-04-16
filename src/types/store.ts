@@ -5,9 +5,8 @@ export type WizardStoreType = Instance<typeof WizardStore>;
 
 // Store action types
 export interface WizardStoreActions {
-  [key: string]: (...args: any[]) => any;
   setCurrentStep: (stepId: string) => void;
-  setStepData: (stepId: string, data: any) => void;
+  setStepData: (stepId: string, data: Record<string, unknown>) => void;
   markStepComplete: (stepId: string) => void;
   setError: (error: string | undefined) => void;
   preloadStepData: (stepId: string) => Promise<void>;

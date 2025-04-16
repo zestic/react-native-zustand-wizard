@@ -1,11 +1,10 @@
 import React, { ReactNode } from 'react';
-import { ButtonProps } from 'react-native';
 import { IWizardStore } from '../stores/WizardStore';
 
 export type Step = {
   id: string;
   order: number;
-  component: React.ComponentType<any>;
+  component: React.ComponentType<Record<string, unknown>>;
   canMoveNext?: boolean;
   nextLabel?: string;
   previousLabel?: string;
@@ -18,7 +17,7 @@ export interface AnimationConfig {
 
 export type IndicatorPosition = 'above' | 'between' | 'below';
 
-export type WizardProps<T = any> = {
+export type WizardProps = {
   steps: Step[];
   nextLabel?: string;
   previousLabel?: string;

@@ -3,6 +3,7 @@ import { Instance } from 'mobx-state-tree';
 import { autorun } from 'mobx';
 import { useSyncExternalStore } from 'react';
 import { WizardStore } from '../stores/WizardStore';
+import { StepData } from '../types/common';
 
 // Define the WizardStoreType
 export type WizardStoreType = Instance<typeof WizardStore>;
@@ -10,8 +11,8 @@ export type WizardStoreType = Instance<typeof WizardStore>;
 // Define the step context type
 export interface StepContext {
   stepId: string;
-  updateField: (field: string, value: any) => void;
-  getStepData: () => any;
+  updateField: (field: string, value: unknown) => void;
+  getStepData: () => StepData;
   canMoveNext: (canMoveNext: boolean) => void;
 }
 
@@ -21,7 +22,7 @@ let wizardStore: WizardStoreType | null = null;
  * Initialize the wizard store reference
  * @param store The wizard store instance
  */
-export function setWizardUtilsStore(store: WizardStoreType) {
+export function setWizardUtilsStore(store: WizardStoreType): void {
   if (!store) {
     console.warn('Cannot initialize with null store');
     return;
@@ -35,7 +36,11 @@ export function setWizardUtilsStore(store: WizardStoreType) {
  * @param field The field name to update
  * @param value The new value for the field
  */
-export const updateField = (stepId: string, field: string, value: any) => {
+export const updateField = (
+  stepId: string,
+  field: string,
+  value: unknown
+): void => {
   if (!wizardStore) {
     console.error(
       'Wizard store not initialized. Call setWizardUtilsStore first.'
@@ -57,10 +62,14 @@ export const useStepContext = (stepId: string): StepContext => {
     if (!wizardStore) return () => {};
     const store = wizardStore;
     const disposer = autorun(() => {
-      // Only track essential values
-      store.getStepData(stepId);
+      // Track essential values and trigger callback when they change
+      const _stepData = store.getStepData(stepId);
       const currentStep = store.getStepById(stepId);
-      currentStep?.canMoveNext;
+      const _canMoveNext = currentStep?.canMoveNext;
+      // eslint-disable-next-line no-void
+      void _stepData;
+      // eslint-disable-next-line no-void
+      void _canMoveNext;
       callback();
     });
     return disposer;
@@ -72,7 +81,7 @@ export const useStepContext = (stepId: string): StepContext => {
       return {};
     }
     return wizardStore.getStepData(stepId) || {};
-  }, [stepId, wizardStore?.getStepData(stepId)]);
+  }, [stepId]);
 
   // Get the current step data
   const getSnapshot = () => stepData;
@@ -83,7 +92,7 @@ export const useStepContext = (stepId: string): StepContext => {
   // Return the step context with safe access to store methods
   return {
     stepId,
-    updateField: (field: string, value: any) => {
+    updateField: (field: string, value: unknown) => {
       if (!wizardStore) {
         console.warn('Store not initialized');
         return;
@@ -127,13 +136,23 @@ export function useNavigationContext(): NavigationConfig {
     if (!wizardStore) return () => {};
     const store = wizardStore;
     const disposer = autorun(() => {
-      // Only track the essential values that can't be derived
-      store.currentStepPosition;
-      store.totalSteps;
+      // Track essential values and trigger callback when they change
+      const _currentStepPosition = store.currentStepPosition;
+      const _totalSteps = store.totalSteps;
       const currentStep = store.getCurrentStep();
-      currentStep?.canMoveNext;
-      currentStep?.nextLabel;
-      currentStep?.previousLabel;
+      const _canMoveNext = currentStep?.canMoveNext;
+      const _nextLabel = currentStep?.nextLabel;
+      const _previousLabel = currentStep?.previousLabel;
+      // eslint-disable-next-line no-void
+      void _currentStepPosition;
+      // eslint-disable-next-line no-void
+      void _totalSteps;
+      // eslint-disable-next-line no-void
+      void _canMoveNext;
+      // eslint-disable-next-line no-void
+      void _nextLabel;
+      // eslint-disable-next-line no-void
+      void _previousLabel;
       callback();
     });
     return disposer;
@@ -154,11 +173,7 @@ export function useNavigationContext(): NavigationConfig {
       };
     }
     return wizardStore.getNavigationConfig();
-  }, [
-    wizardStore?.currentStepPosition,
-    wizardStore?.totalSteps,
-    wizardStore?.getCurrentStep()?.canMoveNext,
-  ]);
+  }, []);
 
   // Get the current config
   const getSnapshot = () => navigationConfig;
@@ -195,7 +210,15 @@ export function createNavigationConfig(): NavigationConfig {
     previousLabel: currentStep?.previousLabel || 'Back',
     currentStepPosition: wizardStore.currentStepPosition,
     totalSteps: wizardStore.totalSteps,
-    onNext: async () => wizardStore?.moveNext(),
-    onPrevious: async () => wizardStore?.moveBack(),
+    onNext: async () => {
+      if (wizardStore) {
+        await wizardStore.moveNext();
+      }
+    },
+    onPrevious: async () => {
+      if (wizardStore) {
+        await wizardStore.moveBack();
+      }
+    },
   };
 }
