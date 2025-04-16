@@ -1,96 +1,130 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { WizardStoreType } from '../../../src/types';
+import { useStepContext } from '../../../src/utils/wizardUtils';
+import { colors } from '../../../src/theme/colors';
 
-interface PersonalInfoStepProps {
-  store: WizardStoreType;
+interface PersonalInfoData {
+  firstName?: string;
+  lastName?: string;
 }
 
-export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = observer(
-  ({ store }) => {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+interface PersonalInfoErrors {
+  firstName?: string;
+  lastName?: string;
+}
 
-    useEffect(() => {
-      const data = store.getStepData('personalInfo');
-      if (data) {
-        setFirstName(data.firstName || '');
-        setLastName(data.lastName || '');
-      }
-    }, []);
+export const PersonalInfoStep = observer(() => {
+  const { getStepData, updateField, canMoveNext } =
+    useStepContext('personalInfo');
+  const [formData, setFormData] = useState<PersonalInfoData>({});
+  const [errors, setErrors] = useState<PersonalInfoErrors>({});
 
-    const handleFirstNameChange = (value: string) => {
-      setFirstName(value);
-      store.setStepData('personalInfo', {
-        ...store.getStepData('personalInfo'),
-        firstName: value,
-      });
-      store
-        .getCurrentStep()
-        ?.setCanMoveNext(value.length > 0 && lastName.length > 0);
-    };
+  useEffect(() => {
+    const data = getStepData() as PersonalInfoData;
+    if (data) {
+      setFormData(data);
+    }
+  }, [getStepData]);
 
-    const handleLastNameChange = (value: string) => {
-      setLastName(value);
-      store.setStepData('personalInfo', {
-        ...store.getStepData('personalInfo'),
-        lastName: value,
-      });
-      store
-        .getCurrentStep()
-        ?.setCanMoveNext(firstName.length > 0 && value.length > 0);
-    };
+  const validateField = (
+    fieldName: keyof PersonalInfoData,
+    fieldValue: string
+  ): string | undefined => {
+    if (!fieldValue) {
+      return `${fieldName === 'firstName' ? 'First' : 'Last'} name is required`;
+    }
+    if (fieldValue.length < 2) {
+      return `${
+        fieldName === 'firstName' ? 'First' : 'Last'
+      } name must be at least 2 characters`;
+    }
+    return undefined;
+  };
 
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Personal Information</Text>
+  const handleFieldUpdate = (
+    fieldName: keyof PersonalInfoData,
+    fieldValue: string
+  ) => {
+    const validationError = validateField(fieldName, fieldValue);
+    const newFormData = { ...formData, [fieldName]: fieldValue };
+    const newErrors = { ...errors, [fieldName]: validationError };
 
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>First Name</Text>
-          <TextInput
-            style={styles.input}
-            value={firstName}
-            onChangeText={handleFirstNameChange}
-            placeholder="Enter your first name"
-          />
-        </View>
+    setFormData(newFormData);
+    setErrors(newErrors);
+    updateField(fieldName, fieldValue);
 
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Last Name</Text>
-          <TextInput
-            style={styles.input}
-            value={lastName}
-            onChangeText={handleLastNameChange}
-            placeholder="Enter your last name"
-          />
-        </View>
-      </View>
+    const hasErrors = Object.values(newErrors).some((err) => err !== undefined);
+    const isComplete = Object.values(newFormData).every(
+      (val) => val && val.length > 0
     );
-  }
-);
+    canMoveNext(!hasErrors && isComplete);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Personal Information</Text>
+
+      <View style={styles.formGroup}>
+        <Text style={styles.label}>First Name</Text>
+        <TextInput
+          style={[styles.input, errors.firstName && styles.inputError]}
+          value={formData.firstName || ''}
+          onChangeText={(value) => handleFieldUpdate('firstName', value)}
+          placeholder="Enter your first name"
+        />
+        {errors.firstName && (
+          <Text style={styles.errorText}>{errors.firstName}</Text>
+        )}
+      </View>
+
+      <View style={styles.formGroup}>
+        <Text style={styles.label}>Last Name</Text>
+        <TextInput
+          style={[styles.input, errors.lastName && styles.inputError]}
+          value={formData.lastName || ''}
+          onChangeText={(value) => handleFieldUpdate('lastName', value)}
+          placeholder="Enter your last name"
+        />
+        {errors.lastName && (
+          <Text style={styles.errorText}>{errors.lastName}</Text>
+        )}
+      </View>
+    </View>
+  );
+});
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     flex: 1,
     padding: 16,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 12,
+    marginTop: 4,
   },
   formGroup: {
     marginBottom: 16,
   },
   input: {
-    borderColor: '#ddd',
+    borderColor: colors.gray300,
     borderRadius: 4,
     borderWidth: 1,
     fontSize: 16,
     padding: 8,
   },
+  inputError: {
+    borderColor: colors.error,
+  },
   label: {
+    color: colors.gray800,
     fontSize: 16,
     marginBottom: 8,
   },
   title: {
+    color: colors.gray800,
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 24,

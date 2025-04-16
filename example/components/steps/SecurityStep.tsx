@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { WizardStoreType } from '../../../src/types';
-
-interface SecurityStepProps {
-  store: WizardStoreType;
-}
+import { useStepContext } from '../../../src/utils/wizardUtils';
+import { colors } from '../../../src/theme/colors';
 
 interface SecurityData {
   username?: string;
@@ -29,61 +20,67 @@ interface SecurityErrors {
   securityAnswer?: string;
 }
 
-export const SecurityStep = observer(({ store }: SecurityStepProps) => {
+export const SecurityStep = observer(() => {
+  const { getStepData, updateField, canMoveNext } = useStepContext('security');
   const [formData, setFormData] = useState<SecurityData>({});
   const [errors, setErrors] = useState<SecurityErrors>({});
 
   useEffect(() => {
-    const data = store.getStepData('security') as SecurityData;
+    const data = getStepData() as SecurityData;
     if (data) {
       setFormData(data);
     }
-  }, []);
+  }, [getStepData]);
 
   const validateField = (
-    name: keyof SecurityData,
-    value: string
+    fieldName: keyof SecurityData,
+    fieldValue: string
   ): string | undefined => {
-    switch (name) {
+    switch (fieldName) {
       case 'username':
-        if (!value) return 'Username is required';
-        if (value.length < 3) return 'Username must be at least 3 characters';
+        if (!fieldValue) return 'Username is required';
+        if (fieldValue.length < 3)
+          return 'Username must be at least 3 characters';
         break;
       case 'password':
-        if (!value) return 'Password is required';
-        if (value.length < 8) return 'Password must be at least 8 characters';
-        if (!/[A-Z]/.test(value))
+        if (!fieldValue) return 'Password is required';
+        if (fieldValue.length < 8)
+          return 'Password must be at least 8 characters';
+        if (!/[A-Z]/.test(fieldValue))
           return 'Password must contain at least one uppercase letter';
-        if (!/[a-z]/.test(value))
+        if (!/[a-z]/.test(fieldValue))
           return 'Password must contain at least one lowercase letter';
-        if (!/[0-9]/.test(value))
+        if (!/[0-9]/.test(fieldValue))
           return 'Password must contain at least one number';
         break;
       case 'confirmPassword':
-        if (!value) return 'Please confirm your password';
-        if (value !== formData.password) return 'Passwords do not match';
+        if (!fieldValue) return 'Please confirm your password';
+        if (fieldValue !== formData.password) return 'Passwords do not match';
         break;
       case 'securityQuestion':
-        if (!value) return 'Security question is required';
-        if (value.length < 10)
+        if (!fieldValue) return 'Security question is required';
+        if (fieldValue.length < 10)
           return 'Security question must be at least 10 characters';
         break;
       case 'securityAnswer':
-        if (!value) return 'Security answer is required';
-        if (value.length < 3)
+        if (!fieldValue) return 'Security answer is required';
+        if (fieldValue.length < 3)
           return 'Security answer must be at least 3 characters';
         break;
     }
     return undefined;
   };
 
-  const updateField = (name: keyof SecurityData, value: string) => {
-    const error = validateField(name, value);
-    const newFormData = { ...formData, [name]: value };
-    const newErrors = { ...errors, [name]: error };
+  const handleFieldUpdate = (
+    fieldName: keyof SecurityData,
+    fieldValue: string
+  ) => {
+    const validationError = validateField(fieldName, fieldValue);
+    const newFormData = { ...formData, [fieldName]: fieldValue };
+    const newErrors = { ...errors, [fieldName]: validationError };
 
     // Special case for confirm password
-    if (name === 'password') {
+    if (fieldName === 'password') {
       const confirmError = formData.confirmPassword
         ? validateField('confirmPassword', formData.confirmPassword)
         : undefined;
@@ -92,15 +89,13 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
 
     setFormData(newFormData);
     setErrors(newErrors);
-    store.setStepData('security', newFormData);
+    updateField(fieldName, fieldValue);
 
-    const hasErrors = Object.values(newErrors).some(
-      (error) => error !== undefined
-    );
+    const hasErrors = Object.values(newErrors).some((err) => err !== undefined);
     const isComplete = Object.values(newFormData).every(
-      (value) => value && value.length > 0
+      (val) => val && val.length > 0
     );
-    store.getCurrentStep()?.setCanMoveNext(!hasErrors && isComplete);
+    canMoveNext(!hasErrors && isComplete);
   };
 
   return (
@@ -112,7 +107,7 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
         <TextInput
           style={[styles.input, errors.username && styles.inputError]}
           value={formData.username || ''}
-          onChangeText={(value) => updateField('username', value)}
+          onChangeText={(value) => handleFieldUpdate('username', value)}
           placeholder="Enter your username"
           autoCapitalize="none"
         />
@@ -126,7 +121,7 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
         <TextInput
           style={[styles.input, errors.password && styles.inputError]}
           value={formData.password || ''}
-          onChangeText={(value) => updateField('password', value)}
+          onChangeText={(value) => handleFieldUpdate('password', value)}
           placeholder="Enter your password"
           secureTextEntry
           autoCapitalize="none"
@@ -141,7 +136,7 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
         <TextInput
           style={[styles.input, errors.confirmPassword && styles.inputError]}
           value={formData.confirmPassword || ''}
-          onChangeText={(value) => updateField('confirmPassword', value)}
+          onChangeText={(value) => handleFieldUpdate('confirmPassword', value)}
           placeholder="Confirm your password"
           secureTextEntry
           autoCapitalize="none"
@@ -156,7 +151,7 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
         <TextInput
           style={[styles.input, errors.securityQuestion && styles.inputError]}
           value={formData.securityQuestion || ''}
-          onChangeText={(value) => updateField('securityQuestion', value)}
+          onChangeText={(value) => handleFieldUpdate('securityQuestion', value)}
           placeholder="Enter your security question"
         />
         {errors.securityQuestion && (
@@ -169,7 +164,7 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
         <TextInput
           style={[styles.input, errors.securityAnswer && styles.inputError]}
           value={formData.securityAnswer || ''}
-          onChangeText={(value) => updateField('securityAnswer', value)}
+          onChangeText={(value) => handleFieldUpdate('securityAnswer', value)}
           placeholder="Enter your security answer"
           autoCapitalize="none"
         />
@@ -177,42 +172,18 @@ export const SecurityStep = observer(({ store }: SecurityStepProps) => {
           <Text style={styles.errorText}>{errors.securityAnswer}</Text>
         )}
       </View>
-
-      <TouchableOpacity
-        style={[
-          styles.button,
-          Object.keys(errors).length > 0 && styles.buttonDisabled,
-        ]}
-        onPress={() => console.log('Continue pressed')}
-        disabled={Object.keys(errors).length > 0}
-      >
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#007bff',
-    borderRadius: 4,
-    padding: 16,
-  },
-  buttonDisabled: {
-    backgroundColor: '#cccccc',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.white,
     flex: 1,
     padding: 16,
   },
   errorText: {
-    color: '#ff0000',
+    color: colors.error,
     fontSize: 12,
     marginTop: 4,
   },
@@ -220,20 +191,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    borderColor: '#ddd',
+    borderColor: colors.gray300,
     borderRadius: 4,
     borderWidth: 1,
     fontSize: 16,
     padding: 8,
   },
   inputError: {
-    borderColor: '#ff0000',
+    borderColor: colors.error,
   },
   label: {
+    color: colors.gray800,
     fontSize: 16,
     marginBottom: 8,
   },
   title: {
+    color: colors.gray800,
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 24,

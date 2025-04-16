@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { WizardStoreType } from '../../../src/types/store';
 import { useStepContext } from '../../../src/utils/wizardUtils';
+import { colors } from '../../../src/theme/colors';
+
+interface PreferencesData {
+  language?: 'en' | 'es' | 'fr';
+  theme?: 'light' | 'dark';
+  newsletter?: boolean;
+  marketing?: boolean;
+}
 
 // Define validation schema (example without Yup)
-const validatePreferences = (data: any) => {
+const validatePreferences = (data: PreferencesData) => {
   const errors: Record<string, string> = {};
 
   if (!data.language) {
@@ -19,181 +26,155 @@ const validatePreferences = (data: any) => {
   return errors;
 };
 
-interface PreferencesStepProps {
-  store: WizardStoreType;
-  onComplete: () => void;
-}
+export const PreferencesStep = observer(() => {
+  // Use the step context hook to get the step ID and helper functions
+  const { getStepData, updateField, canMoveNext } =
+    useStepContext('preferences');
 
-export const PreferencesStep: React.FC<PreferencesStepProps> = observer(
-  ({ store, onComplete }) => {
-    // Use the step context hook to get the step ID and helper functions
-    const { updateField, getStepData } = useStepContext('preferences');
+  // Get the current step data from the store
+  const stepData = getStepData() as PreferencesData;
 
-    // Get the current step data from the store
-    const stepData = getStepData();
+  // State for validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // State for validation errors
-    const [errors, setErrors] = useState<Record<string, string>>({});
+  // Validate the form when data changes
+  useEffect(() => {
+    const validationErrors = validatePreferences(stepData);
+    setErrors(validationErrors);
+    canMoveNext(Object.keys(validationErrors).length === 0);
+  }, [stepData, canMoveNext]);
 
-    // Validate the form when data changes
-    useEffect(() => {
-      const validationErrors = validatePreferences(stepData);
-      setErrors(validationErrors);
-    }, [stepData]);
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Preferences</Text>
 
-    // Handle form submission
-    const handleSubmit = () => {
-      const validationErrors = validatePreferences(stepData);
-      setErrors(validationErrors);
-
-      if (Object.keys(validationErrors).length === 0) {
-        onComplete();
-      }
-    };
-
-    return (
-      <View style={styles.container}>
-        <Text style={styles.title}>Preferences</Text>
-
-        <Text style={styles.label}>Language</Text>
-        <View style={styles.optionsContainer}>
-          <TouchableOpacity
+      <Text style={styles.label}>Language</Text>
+      <View style={styles.optionsContainer}>
+        <TouchableOpacity
+          style={[
+            styles.optionButton,
+            stepData.language === 'en' && styles.selectedOption,
+          ]}
+          onPress={() => updateField('language', 'en')}
+        >
+          <Text
             style={[
-              styles.optionButton,
-              stepData.language === 'en' && styles.selectedOption,
+              styles.optionText,
+              stepData.language === 'en' && styles.selectedOptionText,
             ]}
-            onPress={() => updateField('language', 'en')}
           >
-            <Text
-              style={[
-                styles.optionText,
-                stepData.language === 'en' && styles.selectedOptionText,
-              ]}
-            >
-              English
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.optionButton,
-              stepData.language === 'es' && styles.selectedOption,
-            ]}
-            onPress={() => updateField('language', 'es')}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                stepData.language === 'es' && styles.selectedOptionText,
-              ]}
-            >
-              Spanish
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.optionButton,
-              stepData.language === 'fr' && styles.selectedOption,
-            ]}
-            onPress={() => updateField('language', 'fr')}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                stepData.language === 'fr' && styles.selectedOptionText,
-              ]}
-            >
-              French
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {errors.language && (
-          <Text style={styles.errorText}>{errors.language}</Text>
-        )}
-
-        <Text style={styles.label}>Theme</Text>
-        <View style={styles.optionsContainer}>
-          <TouchableOpacity
-            style={[
-              styles.optionButton,
-              stepData.theme === 'light' && styles.selectedOption,
-            ]}
-            onPress={() => updateField('theme', 'light')}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                stepData.theme === 'light' && styles.selectedOptionText,
-              ]}
-            >
-              Light
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.optionButton,
-              stepData.theme === 'dark' && styles.selectedOption,
-            ]}
-            onPress={() => updateField('theme', 'dark')}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                stepData.theme === 'dark' && styles.selectedOptionText,
-              ]}
-            >
-              Dark
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {errors.theme && <Text style={styles.errorText}>{errors.theme}</Text>}
-
-        <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Subscribe to Newsletter</Text>
-          <Switch
-            value={stepData.newsletter || false}
-            onValueChange={(value) => updateField('newsletter', value)}
-          />
-        </View>
-
-        <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Receive Marketing Emails</Text>
-          <Switch
-            value={stepData.marketing || false}
-            onValueChange={(value) => updateField('marketing', value)}
-          />
-        </View>
+            English
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           style={[
-            styles.button,
-            Object.keys(errors).length > 0 && styles.buttonDisabled,
+            styles.optionButton,
+            stepData.language === 'es' && styles.selectedOption,
           ]}
-          onPress={handleSubmit}
-          disabled={Object.keys(errors).length > 0}
+          onPress={() => updateField('language', 'es')}
         >
-          <Text style={styles.buttonText}>Continue</Text>
+          <Text
+            style={[
+              styles.optionText,
+              stepData.language === 'es' && styles.selectedOptionText,
+            ]}
+          >
+            Spanish
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.optionButton,
+            stepData.language === 'fr' && styles.selectedOption,
+          ]}
+          onPress={() => updateField('language', 'fr')}
+        >
+          <Text
+            style={[
+              styles.optionText,
+              stepData.language === 'fr' && styles.selectedOptionText,
+            ]}
+          >
+            French
+          </Text>
         </TouchableOpacity>
       </View>
-    );
-  }
-);
+      {errors.language && (
+        <Text style={styles.errorText}>{errors.language}</Text>
+      )}
+
+      <Text style={styles.label}>Theme</Text>
+      <View style={styles.optionsContainer}>
+        <TouchableOpacity
+          style={[
+            styles.optionButton,
+            stepData.theme === 'light' && styles.selectedOption,
+          ]}
+          onPress={() => updateField('theme', 'light')}
+        >
+          <Text
+            style={[
+              styles.optionText,
+              stepData.theme === 'light' && styles.selectedOptionText,
+            ]}
+          >
+            Light
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.optionButton,
+            stepData.theme === 'dark' && styles.selectedOption,
+          ]}
+          onPress={() => updateField('theme', 'dark')}
+        >
+          <Text
+            style={[
+              styles.optionText,
+              stepData.theme === 'dark' && styles.selectedOptionText,
+            ]}
+          >
+            Dark
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {errors.theme && <Text style={styles.errorText}>{errors.theme}</Text>}
+
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>Subscribe to Newsletter</Text>
+        <Switch
+          value={Boolean(stepData.newsletter)}
+          onValueChange={(value) => updateField('newsletter', value)}
+        />
+      </View>
+
+      <View style={styles.switchContainer}>
+        <Text style={styles.switchLabel}>Receive Marketing Emails</Text>
+        <Switch
+          value={Boolean(stepData.marketing)}
+          onValueChange={(value) => updateField('marketing', value)}
+        />
+      </View>
+    </View>
+  );
+});
 
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
     borderRadius: 8,
     marginTop: 16,
     padding: 16,
   },
   buttonDisabled: {
-    backgroundColor: '#B0B0B0',
+    backgroundColor: colors.gray300,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -201,7 +182,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   errorText: {
-    color: '#FF3B30',
+    color: colors.error,
     fontSize: 12,
     marginBottom: 12,
   },
@@ -211,7 +192,7 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     alignItems: 'center',
-    borderColor: '#E0E0E0',
+    borderColor: colors.gray200,
     borderRadius: 8,
     borderWidth: 1,
     flex: 1,
@@ -226,11 +207,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   selectedOption: {
-    backgroundColor: '#E6F2FF',
-    borderColor: '#007AFF',
+    backgroundColor: colors.primaryLight,
+    borderColor: colors.primary,
   },
   selectedOptionText: {
-    color: '#007AFF',
+    color: colors.primary,
     fontWeight: 'bold',
   },
   switchContainer: {

@@ -6,10 +6,10 @@ import { ContactInfoStep } from './components/steps/ContactInfoStep';
 import { SecurityStep } from './components/steps/SecurityStep';
 import { PreferencesStep } from './components/steps/PreferencesStep';
 import { ReviewStep } from './components/steps/ReviewStep';
-import { StepConfig } from '../src/types';
+import { Step } from '../src/types';
 
 const App: React.FC = () => {
-  const steps: StepConfig[] = [
+  const steps: Step[] = [
     {
       id: 'personalInfo',
       component: PersonalInfoStep,
