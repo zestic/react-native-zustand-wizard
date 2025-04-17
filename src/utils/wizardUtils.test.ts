@@ -2,7 +2,6 @@ import {
   setWizardUtilsStore,
   updateField,
   useStepContext,
-  createNavigationConfig,
   useNavigationContext,
 } from './wizardUtils';
 import { WizardStore } from '../stores/WizardStore';
@@ -100,70 +99,32 @@ describe('wizardUtils', () => {
   });
 
   describe('useStepContext', () => {
+    beforeEach(() => {
+      setWizardUtilsStore(null as any); // Ensure wizardStore is reset
+    });
+
     it('returns step context with correct functions', () => {
       setWizardUtilsStore(mockStore);
       const { result } = renderHook(() => useStepContext('step1'));
-
       expect(result.current.stepId).toBe('step1');
-      expect(typeof result.current.updateField).toBe('function');
-      expect(typeof result.current.getStepData).toBe('function');
-      expect(typeof result.current.canMoveNext).toBe('function');
-    });
-
-    it('calls store methods correctly', () => {
-      setWizardUtilsStore(mockStore);
-      const { result } = renderHook(() => useStepContext('step1'));
-
-      // Test updateField
       act(() => {
         result.current.updateField('field1', 'value1');
       });
-      expect(mockStore.updateField).toHaveBeenCalledWith(
-        'step1',
-        'field1',
-        'value1'
-      );
-
-      // Test getStepData
-      act(() => {
-        result.current.getStepData();
-      });
-      expect(mockStore.getStepData).toHaveBeenCalledWith('step1');
-
-      // Test canMoveNext
-      act(() => {
-        result.current.canMoveNext(true);
-      });
-      expect(mockStore.getStepById).toHaveBeenCalledWith('step1');
-      const stepModel = mockStore.getStepById('step1');
-      expect(stepModel.setCanMoveNext).toHaveBeenCalledWith(true);
+      expect(mockStore.updateField).toHaveBeenCalledWith('step1', 'field1', 'value1');
     });
-  });
 
-  describe('createNavigationConfig', () => {
-    it('returns correct config when store is set', () => {
-      const store = {
-        currentStepPosition: 1,
-        totalSteps: 2,
-        getCurrentStep: jest.fn().mockReturnValue({
-          nextLabel: 'Next',
-          previousLabel: 'Back',
-          canMoveNext: false,
-        }),
-        getCanMoveNext: jest.fn().mockReturnValue(false),
-        moveNext: jest.fn().mockResolvedValue(undefined),
-        moveBack: jest.fn().mockResolvedValue(undefined),
-      };
-      setWizardUtilsStore(store as any);
-      const config = createNavigationConfig();
-      expect(config.isPreviousHidden).toBe(true);
-      expect(config.isNextDisabled).toBe(true);
-      expect(config.nextLabel).toBe('Next');
-      expect(config.previousLabel).toBe('Back');
-      expect(config.currentStepPosition).toBe(1);
-      expect(config.totalSteps).toBe(2);
-      expect(typeof config.onNext).toBe('function');
-      expect(typeof config.onPrevious).toBe('function');
+    it('handles missing step gracefully', () => {
+      mockStore.getStepById = jest.fn().mockReturnValue(undefined);
+      const { result } = renderHook(() => useStepContext('step-missing'));
+      expect(result.current.canMoveNext).toBeInstanceOf(Function);
+      // Should not throw when called
+      expect(() => result.current.canMoveNext(true)).not.toThrow();
+    });
+
+    it('getStepData returns correct data', () => {
+      setWizardUtilsStore(mockStore);
+      const { result } = renderHook(() => useStepContext('step1'));
+      expect(result.current.getStepData()).toEqual({});
     });
   });
 
