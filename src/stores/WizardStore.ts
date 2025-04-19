@@ -111,10 +111,6 @@ const WizardStoreBase = types
         const store = self as WizardStoreType;
         return store.currentStepPosition === store.totalSteps;
       },
-      getCanMoveBack(): boolean {
-        const store = self as WizardStoreType;
-        return store.currentStepPosition > 1;
-      },
       get canMoveNext(): boolean {
         const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();

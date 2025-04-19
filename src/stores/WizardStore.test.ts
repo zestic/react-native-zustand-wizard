@@ -118,15 +118,9 @@ describe('WizardStore', () => {
     });
 
     it('should check if can move next', () => {
-      expect(store.getCanMoveNext()).toBe(true);
+      expect(store.canMoveNext).toBe(true);
       store.steps[0].setCanMoveNext(false);
-      expect(store.getCanMoveNext()).toBe(false);
-    });
-
-    it('should check if can move back', () => {
-      expect(store.getCanMoveBack()).toBe(false);
-      store.moveNext();
-      expect(store.getCanMoveBack()).toBe(true);
+      expect(store.canMoveNext).toBe(false);
     });
 
     it('should get next step', () => {
