@@ -1,6 +1,45 @@
-import React, { ReactNode } from 'react';
-import { IWizardStore } from '../stores/WizardStore';
+import React from 'react';
+import { Instance } from 'mobx-state-tree';
+import { WizardStore } from '../stores/WizardStore';
 
+export type WizardStoreType = Instance<typeof WizardStore>;
+
+// Store action types
+export interface WizardStoreActions {
+  setCurrentStep: (stepId: string) => void;
+  setStepData: (stepId: string, data: Record<string, unknown>) => void;
+  markStepComplete: (stepId: string) => void;
+  setError: (error: string | undefined) => void;
+  preloadStepData: (stepId: string) => Promise<void>;
+}
+
+// Store view types
+export interface WizardStoreViews {
+  isStepComplete: (stepId: string) => boolean;
+  canMoveNext: () => boolean;
+  canMoveBack: () => boolean;
+}
+
+// Combined store type
+export type WizardStore = WizardStoreType &
+  WizardStoreActions &
+  WizardStoreViews;
+
+export type IndicatorPosition = 'above' | 'between' | 'below';
+
+export interface WizardNavigationProps {
+  ButtonComponent?: React.ComponentType<{
+    onPress: () => void;
+    title: string;
+    disabled?: boolean;
+  }>;
+  StepIndicatorComponent?: React.ComponentType;
+  indicatorPosition?: IndicatorPosition;
+}
+
+export interface StepData {
+  [key: string]: unknown;
+}
 export type Step = {
   id: string;
   order: number;
@@ -10,21 +49,13 @@ export type Step = {
   previousLabel?: string;
 };
 
-export interface AnimationConfig {
-  duration?: number;
-  type?: 'slide' | 'fade' | 'none';
-}
-
-export type IndicatorPosition = 'above' | 'between' | 'below';
-
 export type WizardProps = {
   steps: Step[];
   nextLabel?: string;
   previousLabel?: string;
   finishLabel?: string;
   renderLoading?: () => React.ReactNode;
-  renderNavigation?: ((store: IWizardStore) => React.ReactNode) | undefined;
-  animationConfig?: AnimationConfig;
+  renderNavigation?: React.ComponentType<WizardNavigationProps>;
 };
 
 export interface StepProps {
@@ -34,47 +65,20 @@ export interface StepProps {
   stepId: string;
 }
 
-export interface ConnectorProps {
-  index: number;
-  isActive: boolean;
-  isCompleted: boolean;
+export interface NavigationContext {
+  isPreviousHidden: boolean;
+  isNextDisabled: boolean;
+  nextLabel: string;
+  previousLabel: string;
+  currentStepPosition: number;
+  totalSteps: number;
+  onNext: () => Promise<void>;
+  onPrevious: () => Promise<void>;
 }
 
-export interface StepIndicatorProps {
-  index: number;
-  isCompleted: boolean;
-  isCurrent: boolean;
+export interface StepContext {
   stepId: string;
-  store: IWizardStore;
-  renderStep?: ((props: StepProps) => React.ReactNode) | undefined;
-  renderConnector?: ((props: ConnectorProps) => React.ReactNode) | undefined;
+  updateField: (field: string, value: unknown) => void;
+  getStepData: () => StepData;
+  canMoveNext: (canMoveNext: boolean) => void;
 }
-
-export interface DefaultTransitionProps {
-  children: ReactNode;
-  animationConfig?: AnimationConfig;
-  direction: 'forward' | 'backward';
-}
-
-export type StepperNavigationProps = {
-  store: IWizardStore;
-  renderStep?:
-    | ((props: {
-        index: number;
-        isCompleted: boolean;
-        isCurrent: boolean;
-        stepId: string;
-      }) => React.ReactNode)
-    | undefined;
-  renderConnector?:
-    | ((props: {
-        index: number;
-        isActive: boolean;
-        isCompleted: boolean;
-      }) => React.ReactNode)
-    | undefined;
-};
-
-export type NavigationContextType = {
-  store: IWizardStore;
-};

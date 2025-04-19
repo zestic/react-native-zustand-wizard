@@ -1,6 +1,5 @@
 import { types, Instance, SnapshotIn } from 'mobx-state-tree';
 import { setWizardUtilsStore } from '../utils/wizardUtils';
-import { NavigationConfig } from '../utils/wizardUtils';
 
 // Define the Step Model
 const StepModel = types
@@ -116,7 +115,7 @@ const WizardStoreBase = types
         const store = self as WizardStoreType;
         return store.currentStepPosition > 1;
       },
-      getCanMoveNext(): boolean {
+      get canMoveNext(): boolean {
         const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();
         return currentStep ? currentStep.canMoveNext : false;
@@ -148,19 +147,6 @@ const WizardStoreBase = types
         const store = self as WizardStoreType;
         const currentStep = store.getCurrentStep();
         return currentStep?.previousLabel || 'Previous';
-      },
-      getNavigationConfig(): NavigationConfig {
-        const store = self as WizardStoreType;
-        return {
-          isPreviousHidden: store.isFirstStep,
-          isNextDisabled: !store.getCanMoveNext(),
-          nextLabel: store.nextButtonLabel,
-          previousLabel: store.previousButtonLabel,
-          currentStepPosition: store.currentStepPosition,
-          totalSteps: store.totalSteps,
-          onNext: async () => store.moveNext(),
-          onPrevious: async () => store.moveBack(),
-        };
       },
     };
   })

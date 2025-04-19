@@ -1,22 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { useNavigationContext } from '../../utils/wizardUtils';
 
-export interface StepIndicatorProps {
-  testID?: string;
-  style?: ViewStyle;
-}
-
-export const StepIndicator: React.FC<StepIndicatorProps> = ({
-  testID = 'step-indicator',
-  style,
-}) => {
+export const StepIndicator: React.FC = () => {
   const { currentStepPosition, totalSteps } = useNavigationContext();
   const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
   return (
-    <View style={[styles.container, style]} testID={testID}>
+    <View style={styles.container}>
       {steps.map((step, index) => {
         const isCompleted = step < currentStepPosition;
         const isCurrent = step === currentStepPosition;
@@ -30,7 +22,6 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                 isCompleted && styles.stepCompleted,
                 isCurrent && styles.stepCurrent,
               ]}
-              testID="step"
             />
             {!isLast && (
               <View
@@ -38,7 +29,6 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                   styles.connector,
                   isCompleted && styles.connectorCompleted,
                 ]}
-                testID="connector"
               />
             )}
           </React.Fragment>

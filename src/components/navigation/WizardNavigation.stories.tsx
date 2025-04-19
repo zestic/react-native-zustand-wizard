@@ -3,6 +3,7 @@ import { View, StyleSheet, Text } from 'react-native';
 import { colors } from '../../theme/colors';
 import { WizardNavigation } from './WizardNavigation';
 import { WizardStore } from '../../stores/WizardStore';
+import { useNavigationContext } from '../../utils/wizardUtils';
 
 const styles = StyleSheet.create({
   button: {
@@ -48,7 +49,6 @@ interface CustomButtonProps {
   onPress: () => void;
   title: string;
   disabled?: boolean;
-  testID?: string;
   accessibilityState?: { disabled: boolean };
 }
 
@@ -56,12 +56,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   onPress,
   title,
   disabled,
-  testID,
 }) => (
-  <View
-    style={[styles.button, disabled && styles.buttonDisabled]}
-    testID={testID}
-  >
+  <View style={[styles.button, disabled && styles.buttonDisabled]}>
     <Text
       style={[styles.buttonText, disabled && styles.buttonTextDisabled]}
       onPress={onPress}
@@ -71,100 +67,126 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   </View>
 );
 
-interface CustomStepIndicatorProps {
-  currentStep: number;
-  totalSteps: number;
-  testID?: string;
-}
+const CustomStepIndicator: React.FC = () => {
+  const { currentStepPosition, totalSteps } = useNavigationContext();
+  return (
+    <View style={styles.stepIndicator}>
+      <Text>
+        Step {currentStepPosition} of {totalSteps}
+      </Text>
+    </View>
+  );
+};
 
-const CustomStepIndicator: React.FC<CustomStepIndicatorProps> = ({
-  currentStep,
-  totalSteps,
-  testID,
-}) => (
-  <View style={styles.stepIndicator} testID={testID}>
-    <Text>
-      Step {currentStep} of {totalSteps}
-    </Text>
-  </View>
-);
+const createStore = (currentStepPosition = 1) => {
+  const steps = [
+    {
+      id: 'step1',
+      order: 1,
+      canMoveNext: true,
+      nextLabel: 'Next',
+      previousLabel: 'Back',
+    },
+    {
+      id: 'step2',
+      order: 2,
+      canMoveNext: true,
+      nextLabel: 'Next',
+      previousLabel: 'Back',
+    },
+    {
+      id: 'step3',
+      order: 3,
+      canMoveNext: true,
+      nextLabel: 'Finish',
+      previousLabel: 'Back',
+    },
+  ];
+  return WizardStore.create({
+    currentStepId: `step${currentStepPosition}`,
+    currentStepPosition,
+    steps,
+    stepData: {},
+  });
+};
 
 export const Default = () => {
-  const store = WizardStore.create();
+  createStore(2);
   return (
     <View style={styles.container}>
       <View style={styles.storyContainer}>
-        <WizardNavigation store={store} />
+        <WizardNavigation />
       </View>
     </View>
   );
 };
 
 export const WithCustomButton = () => {
-  const store = WizardStore.create();
+  createStore(2);
   return (
     <View style={styles.container}>
       <View style={styles.storyContainer}>
-        <WizardNavigation store={store} ButtonComponent={CustomButton} />
+        <WizardNavigation ButtonComponent={CustomButton} />
       </View>
     </View>
   );
 };
 
 export const WithCustomStepIndicator = () => {
-  const store = WizardStore.create();
+  createStore();
+
   return (
     <View style={styles.container}>
       <View style={styles.storyContainer}>
-        <WizardNavigation
-          store={store}
-          StepIndicatorComponent={CustomStepIndicator}
-        />
+        <WizardNavigation StepIndicatorComponent={CustomStepIndicator} />
       </View>
     </View>
   );
 };
 
 export const IndicatorAbove = () => {
-  const store = WizardStore.create();
+  createStore(2);
+
   return (
     <View style={styles.container}>
       <View style={styles.storyContainer}>
-        <WizardNavigation store={store} indicatorPosition="above" />
+        <WizardNavigation indicatorPosition="above" />
       </View>
     </View>
   );
 };
 
 export const IndicatorBelow = () => {
-  const store = WizardStore.create();
+  createStore(2);
+
   return (
     <View style={styles.container}>
       <View style={styles.storyContainer}>
-        <WizardNavigation store={store} indicatorPosition="below" />
+        <WizardNavigation indicatorPosition="below" />
       </View>
     </View>
   );
 };
 
 export const IndicatorBetween = () => {
-  const store = WizardStore.create();
+  createStore(2);
+
   return (
     <View style={styles.container}>
       <View style={styles.storyContainer}>
-        <WizardNavigation store={store} indicatorPosition="between" />
+        <WizardNavigation indicatorPosition="between" />
       </View>
     </View>
   );
 };
 
 export const FullyCustomized = () => {
-  const store = WizardStore.create();
+  createStore(2);
+
   return (
     <View style={styles.container}>
       <View style={styles.storyContainer}>
         <WizardNavigation
-          store={store}
           ButtonComponent={CustomButton}
           StepIndicatorComponent={CustomStepIndicator}
           indicatorPosition="between"

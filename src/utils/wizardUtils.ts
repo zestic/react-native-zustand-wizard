@@ -1,31 +1,34 @@
 import { useMemo } from 'react';
-import { Instance } from 'mobx-state-tree';
 import { autorun } from 'mobx';
 import { useSyncExternalStore } from 'react';
-import { WizardStore } from '../stores/WizardStore';
-import { StepData } from '../types/common';
+import { WizardStoreType } from '../stores/WizardStore';
+import { NavigationContext, StepContext } from 'types';
 
-// Define the WizardStoreType
-export type WizardStoreType = Instance<typeof WizardStore>;
-
-// Define the step context type
-export interface StepContext {
-  stepId: string;
-  updateField: (field: string, value: unknown) => void;
-  getStepData: () => StepData;
-  canMoveNext: (canMoveNext: boolean) => void;
+class WizardStoreError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WizardStoreError';
+  }
 }
 
 let wizardStore: WizardStoreType | null = null;
 
 /**
+ * Reset the store to null (for testing only)
+ * @internal
+ */
+export function resetStore(): void {
+  wizardStore = null;
+}
+
+/**
  * Initialize the wizard store reference
  * @param store The wizard store instance
+ * @throws {WizardStoreError} When store is null
  */
 export function setWizardUtilsStore(store: WizardStoreType): void {
   if (!store) {
-    console.warn('Cannot initialize with null store');
-    return;
+    throw new WizardStoreError('Cannot initialize with null store');
   }
   wizardStore = store;
 }
@@ -42,10 +45,7 @@ export const updateField = (
   value: unknown
 ): void => {
   if (!wizardStore) {
-    console.error(
-      'Wizard store not initialized. Call setWizardUtilsStore first.'
-    );
-    return;
+    throw new WizardStoreError('Store not initialized');
   }
 
   wizardStore.updateField(stepId, field, value);
@@ -64,12 +64,8 @@ export const useStepContext = (stepId: string): StepContext => {
     const disposer = autorun(() => {
       // Track essential values and trigger callback when they change
       const _stepData = store.getStepData(stepId);
-      const currentStep = store.getStepById(stepId);
-      const _canMoveNext = currentStep?.canMoveNext;
       // eslint-disable-next-line no-void
       void _stepData;
-      // eslint-disable-next-line no-void
-      void _canMoveNext;
       callback();
     });
     return disposer;
@@ -94,22 +90,19 @@ export const useStepContext = (stepId: string): StepContext => {
     stepId,
     updateField: (field: string, value: unknown) => {
       if (!wizardStore) {
-        console.warn('Store not initialized');
-        return;
+        throw new WizardStoreError('Store not initialized');
       }
       wizardStore.updateField(stepId, field, value);
     },
     getStepData: () => {
       if (!wizardStore) {
-        console.warn('Store not initialized');
-        return {};
+        throw new WizardStoreError('Store not initialized');
       }
-      return wizardStore.getStepData(stepId) || {};
+      return wizardStore.getStepData(stepId);
     },
     canMoveNext: (canMoveNext: boolean) => {
       if (!wizardStore) {
-        console.warn('Store not initialized');
-        return;
+        throw new WizardStoreError('Store not initialized');
       }
       const currentStep = wizardStore.getStepById(stepId);
       if (currentStep) {
@@ -119,18 +112,7 @@ export const useStepContext = (stepId: string): StepContext => {
   };
 };
 
-export interface NavigationConfig {
-  isPreviousHidden: boolean;
-  isNextDisabled: boolean;
-  nextLabel: string;
-  previousLabel: string;
-  currentStepPosition: number;
-  totalSteps: number;
-  onNext: () => Promise<void>;
-  onPrevious: () => Promise<void>;
-}
-
-export function useNavigationContext(): NavigationConfig {
+export function useNavigationContext(): NavigationContext {
   // Subscribe to changes in the wizardStore
   const subscribe = (callback: () => void) => {
     if (!wizardStore) return () => {};
@@ -138,21 +120,20 @@ export function useNavigationContext(): NavigationConfig {
     const disposer = autorun(() => {
       // Track essential values and trigger callback when they change
       const _currentStepPosition = store.currentStepPosition;
+      const _canMoveNext = store.canMoveNext;
+      const _nextLabel = store.nextButtonLabel;
+      const _previousLabel = store.previousButtonLabel;
       const _totalSteps = store.totalSteps;
-      const currentStep = store.getCurrentStep();
-      const _canMoveNext = currentStep?.canMoveNext;
-      const _nextLabel = currentStep?.nextLabel;
-      const _previousLabel = currentStep?.previousLabel;
       // eslint-disable-next-line no-void
       void _currentStepPosition;
-      // eslint-disable-next-line no-void
-      void _totalSteps;
       // eslint-disable-next-line no-void
       void _canMoveNext;
       // eslint-disable-next-line no-void
       void _nextLabel;
       // eslint-disable-next-line no-void
       void _previousLabel;
+      // eslint-disable-next-line no-void
+      void _totalSteps;
       callback();
     });
     return disposer;
@@ -163,62 +144,43 @@ export function useNavigationContext(): NavigationConfig {
     if (!wizardStore) {
       return {
         isPreviousHidden: false,
-        isNextDisabled: false,
+        isNextDisabled: true,
         nextLabel: '',
         previousLabel: '',
         currentStepPosition: 0,
         totalSteps: 0,
-        onNext: async () => {},
-        onPrevious: async () => {},
       };
     }
-    return wizardStore.getNavigationConfig();
+
+    return {
+      currentStepPosition: wizardStore.currentStepPosition,
+      isNextDisabled: !wizardStore.canMoveNext,
+      isPreviousHidden: wizardStore.isFirstStep,
+      nextLabel: wizardStore.nextButtonLabel,
+      previousLabel: wizardStore.previousButtonLabel,
+      totalSteps: wizardStore.totalSteps,
+    };
   }, []);
 
-  // Get the current config
   const getSnapshot = () => navigationConfig;
 
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-}
+  // Use useSyncExternalStore to handle updates
+  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
-/**
- * Creates a navigation config object based on the current store state
- * @returns A navigation config object
- */
-export function createNavigationConfig(): NavigationConfig {
-  if (!wizardStore) {
-    console.warn(
-      'Wizard store not initialized. Call setWizardUtilsStore first.'
-    );
-    return {
-      isPreviousHidden: true,
-      isNextDisabled: true,
-      nextLabel: 'Next',
-      previousLabel: 'Back',
-      currentStepPosition: 0,
-      totalSteps: 0,
-      onNext: async () => {},
-      onPrevious: async () => {},
-    };
-  }
-
-  const currentStep = wizardStore.getCurrentStep();
   return {
-    isPreviousHidden: wizardStore.currentStepPosition === 1,
-    isNextDisabled: !wizardStore.getCanMoveNext(),
-    nextLabel: currentStep?.nextLabel || 'Next',
-    previousLabel: currentStep?.previousLabel || 'Back',
-    currentStepPosition: wizardStore.currentStepPosition,
-    totalSteps: wizardStore.totalSteps,
+    isPreviousHidden: wizardStore?.isFirstStep ?? false,
+    isNextDisabled: !(wizardStore?.canMoveNext ?? true),
+    nextLabel: wizardStore?.nextButtonLabel ?? '',
+    previousLabel: wizardStore?.previousButtonLabel ?? '',
+    currentStepPosition: wizardStore?.currentStepPosition ?? 0,
+    totalSteps: wizardStore?.totalSteps ?? 0,
     onNext: async () => {
-      if (wizardStore) {
-        await wizardStore.moveNext();
-      }
+      if (!wizardStore) return;
+      await wizardStore.moveNext();
     },
     onPrevious: async () => {
-      if (wizardStore) {
-        await wizardStore.moveBack();
-      }
+      if (!wizardStore) return;
+      await wizardStore.moveBack();
     },
   };
 }

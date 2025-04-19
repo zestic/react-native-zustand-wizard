@@ -73,11 +73,7 @@ export const Wizard = observer(
       <View style={styles.container}>
         {CurrentStepComponent && <CurrentStepComponent store={store} />}
 
-        {renderNavigation ? (
-          renderNavigation(store)
-        ) : (
-          <WizardNavigation store={store} />
-        )}
+        {renderNavigation ? (renderNavigation) : <WizardNavigation />}
       </View>
     );
   }
