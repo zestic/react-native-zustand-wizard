@@ -19,10 +19,26 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'yarn'
 
-      - name: Install Yarn
+      - name: Enable Corepack
         run: corepack enable
+
+      - name: Get Yarn version
+        id: yarn-version
+        run: echo "version=$(yarn -v)" >> $GITHUB_OUTPUT
+
+      - name: Get Yarn cache directory
+        id: yarn-cache-dir
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.yarn-cache-dir.outputs.dir }}
+          key: yarn-cache-${{ runner.os }}-${{ steps.yarn-version.outputs.version }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            yarn-cache-${{ runner.os }}-${{ steps.yarn-version.outputs.version }}-
+            yarn-cache-${{ runner.os }}-
 
       - name: Install dependencies
         run: yarn install --immutable
