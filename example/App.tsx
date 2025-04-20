@@ -14,27 +14,27 @@ const App: React.FC = () => {
     {
       id: 'personalInfo',
       component: PersonalInfoStep,
-      order: 0,
+      order: 1,
     },
     {
       id: 'contactInfo',
       component: ContactInfoStep,
-      order: 1,
+      order: 2,
     },
     {
       id: 'security',
       component: SecurityStep,
-      order: 2,
+      order: 3,
     },
     {
       id: 'preferences',
       component: PreferencesStep,
-      order: 3,
+      order: 4,
     },
     {
       id: 'review',
       component: ReviewStep,
-      order: 4,
+      order: 5,
     },
   ];
 

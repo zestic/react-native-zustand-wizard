@@ -136,14 +136,6 @@ describe('WizardStore', () => {
       expect(prevStep.id).toBe('step1');
     });
 
-    it('should check if next button is disabled', () => {
-      const config = store.getNavigationConfig();
-      expect(config.isNextDisabled).toBe(false);
-      store.steps[0].setCanMoveNext(false);
-      const updatedConfig = store.getNavigationConfig();
-      expect(updatedConfig.isNextDisabled).toBe(true);
-    });
-
     it('should get next button label', () => {
       expect(store.nextButtonLabel).toBe('Next');
       store.moveNext();

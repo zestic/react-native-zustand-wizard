@@ -8,7 +8,12 @@ export const StepIndicator: React.FC = () => {
   const steps = Array.from({ length: totalSteps }, (_, i) => i + 1);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      accessible={true}
+      accessibilityRole="progressbar"
+      accessibilityLabel={`Step progress: ${currentStepPosition} of ${totalSteps} steps`}
+    >
       {steps.map((step, index) => {
         const isCompleted = step < currentStepPosition;
         const isCurrent = step === currentStepPosition;
@@ -17,6 +22,9 @@ export const StepIndicator: React.FC = () => {
         return (
           <React.Fragment key={step}>
             <View
+              accessible={true}
+              accessibilityRole="progressbar"
+              accessibilityLabel={`Step ${step} ${isCompleted ? 'completed' : isCurrent ? 'current' : 'pending'}`}
               style={[
                 styles.step,
                 isCompleted && styles.stepCompleted,
@@ -25,6 +33,8 @@ export const StepIndicator: React.FC = () => {
             />
             {!isLast && (
               <View
+                accessible={true}
+                accessibilityRole="none"
                 style={[
                   styles.connector,
                   isCompleted && styles.connectorCompleted,

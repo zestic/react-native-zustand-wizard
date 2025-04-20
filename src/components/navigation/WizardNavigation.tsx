@@ -18,6 +18,10 @@ const DefaultButton = ({
   <TouchableOpacity
     onPress={onPress}
     disabled={disabled}
+    accessibilityRole="button"
+    accessibilityState={{ disabled }}
+    accessibilityLabel={title}
+    accessible={true}
     style={[styles.button, disabled && styles.disabledButton]}
   >
     <Text style={[styles.buttonText, disabled && styles.disabledButtonText]}>
@@ -39,15 +43,24 @@ export const WizardNavigation = observer(
       previousLabel,
       onNext,
       onPrevious,
+      currentStepPosition,
+      totalSteps,
     } = useNavigationContext();
 
     const renderIndicator = () =>
-      StepIndicatorComponent && <StepIndicatorComponent />;
+      StepIndicatorComponent && (
+        <View
+          accessibilityRole="text"
+          accessibilityLabel={`Step ${currentStepPosition} of ${totalSteps}`}
+        >
+          <StepIndicatorComponent />
+        </View>
+      );
 
     // For 'between', render: [Prev Button] [StepIndicator] [Next Button]
     if (indicatorPosition === 'between' && StepIndicatorComponent) {
       return (
-        <View style={styles.container}>
+        <View style={styles.container} accessible={true}>
           <View style={styles.rowBetween}>
             <View style={styles.buttonWrapper}>
               {!isPreviousHidden && (
@@ -73,7 +86,7 @@ export const WizardNavigation = observer(
 
     // For above/below or no indicator, render buttons in a row
     return (
-      <View style={styles.container}>
+      <View style={styles.container} accessible={true}>
         {indicatorPosition === 'above' && renderIndicator()}
         <View style={styles.rowButtons}>
           {/* Left side - Previous button or empty space */}

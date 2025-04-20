@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent, RenderAPI, screen } from '@testing-library/react-native';
 import { WizardNavigation } from './WizardNavigation';
 import { View, Text } from 'react-native';
 import { useNavigationContext } from '../../utils/wizardUtils';
@@ -19,17 +19,25 @@ describe('WizardNavigation', () => {
     onPress,
     title,
     disabled,
-    testID,
     accessibilityState,
   }: any) => (
-    <View testID={testID} accessibilityState={accessibilityState}>
+    <View accessibilityState={accessibilityState} accessibilityRole="button">
       <Text>{title}</Text>
     </View>
   );
 
-  const CustomStepIndicator = ({ currentStep, totalSteps, testID }: any) => (
-    <Text testID={testID}>{`Step ${currentStep} of ${totalSteps}`}</Text>
-  );
+  const CustomStepIndicator = () => {
+    const { currentStepPosition, totalSteps } = useNavigationContext();
+    return (
+      <View
+        accessible={true}
+        accessibilityRole="progressbar"
+        accessibilityLabel={`Step progress: ${currentStepPosition} of ${totalSteps} steps`}
+      >
+        <Text>{`Step ${currentStepPosition} of ${totalSteps}`}</Text>
+      </View>
+    );
+  };
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -47,18 +55,23 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    const { getByTestId, queryByTestId } = render(
+    render(
       <WizardNavigation
-        store={{} as any}
         StepIndicatorComponent={CustomStepIndicator}
       />
     );
 
-    expect(queryByTestId('back-button')).toBeNull();
-    const nextButton = getByTestId('next-button');
+    // Verify back button is not present
+    const backButton = screen.queryByRole('button', { name: 'Back' });
+    expect(backButton).toBeNull();
+
+    // Verify next button is present but disabled
+    const nextButton = screen.getByRole('button', { name: 'Next' });
     expect(nextButton.props.accessibilityState.disabled).toBe(true);
-    const indicator = getByTestId('step-indicator');
-    expect(indicator.props.children).toBe('Step 1 of 2');
+
+    // Verify step indicator
+    const indicator = screen.getByLabelText('Step progress: 1 of 2 steps');
+    expect(indicator).toBeTruthy();
   });
 
   it('should render correctly for middle step', () => {
@@ -73,18 +86,24 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    const { getByTestId } = render(
+    const { getByRole } = render(
       <WizardNavigation
-        store={{} as any}
         StepIndicatorComponent={CustomStepIndicator}
       />
     );
 
-    expect(getByTestId('back-button')).toBeTruthy();
-    const nextButton = getByTestId('next-button');
-    expect(nextButton.props.accessibilityState.disabled).toBe(false);
-    const indicator = getByTestId('step-indicator');
-    expect(indicator.props.children).toBe('Step 2 of 3');
+    // Verify back button is present and enabled
+    const backButton = screen.getByRole('button', { name: 'Back' });
+    expect(backButton).toBeTruthy();
+    expect(backButton.props.accessibilityState?.disabled).toBeFalsy();
+
+    // Verify next button is present and enabled
+    const nextButton = screen.getByRole('button', { name: 'Next' });
+    expect(nextButton.props.accessibilityState?.disabled).toBeFalsy();
+
+    // Verify step indicator
+    const indicator = screen.getByLabelText('Step progress: 2 of 3 steps');
+    expect(indicator).toBeTruthy();
   });
 
   it('should render without step indicator when no StepIndicatorComponent is provided', () => {
@@ -99,8 +118,9 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    const { queryByTestId } = render(<WizardNavigation store={{} as any} />);
-    expect(queryByTestId('step-indicator')).toBeNull();
+    render(<WizardNavigation />);
+    const indicator = screen.queryByRole('text', { name: /Step .* of .*/ });
+    expect(indicator).toBeNull();
   });
 
   it('should render step indicator in default position (between)', () => {
@@ -115,15 +135,14 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    const { getByTestId } = render(
+    render(
       <WizardNavigation
-        store={{} as any}
         StepIndicatorComponent={CustomStepIndicator}
       />
     );
 
-    const indicator = getByTestId('step-indicator');
-    expect(indicator.props.children).toBe('Step 1 of 2');
+    const indicator = screen.getByLabelText('Step progress: 1 of 2 steps');
+    expect(indicator).toBeTruthy();
   });
 
   it('should render step indicator in specified position', () => {
@@ -143,52 +162,24 @@ describe('WizardNavigation', () => {
       'between',
       'below',
     ];
+
     positions.forEach((position) => {
-      const { getByTestId } = render(
+      render(
         <WizardNavigation
-          store={{} as any}
           StepIndicatorComponent={CustomStepIndicator}
           indicatorPosition={position}
         />
       );
-      const indicator = getByTestId('step-indicator');
+      const indicator = screen.getByLabelText('Step progress: 1 of 2 steps');
       expect(indicator).toBeTruthy();
     });
   });
 
-  it('should render step indicator between the buttons when indicatorPosition is between', () => {
-    mockNav.mockReturnValue({
-      isPreviousHidden: false,
-      isNextDisabled: false,
-      nextLabel: 'Next',
-      previousLabel: 'Back',
-      currentStepPosition: 1,
-      totalSteps: 2,
-      onNext: jest.fn(),
-      onPrevious: jest.fn(),
-    });
-
-    const { getByTestId } = render(
-      <WizardNavigation
-        store={{} as any}
-        StepIndicatorComponent={CustomStepIndicator}
-        indicatorPosition="between"
-      />
-    );
-
-    const backButton = getByTestId('back-button');
-    const nextButton = getByTestId('next-button');
-    const indicator = getByTestId('step-indicator');
-    expect(backButton).toBeTruthy();
-    expect(nextButton).toBeTruthy();
-    expect(indicator).toBeTruthy();
-  });
-
-  it('should handle navigation actions', async () => {
+  it('should handle navigation actions', () => {
     const onNext = jest.fn();
     const onPrevious = jest.fn();
     mockNav.mockReturnValue({
-      isPreviousHidden: true,
+      isPreviousHidden: false,
       isNextDisabled: false,
       nextLabel: 'Next',
       previousLabel: 'Back',
@@ -198,28 +189,19 @@ describe('WizardNavigation', () => {
       onPrevious,
     });
 
-    const { getByTestId, queryByTestId } = render(
-      <WizardNavigation store={{} as any} />
+    render(
+      <WizardNavigation />
     );
 
-    expect(queryByTestId('back-button')).toBeNull();
-    fireEvent.press(getByTestId('next-button'));
+    // Test next button
+    const nextButton = screen.getByRole('button', { name: 'Next' });
+    fireEvent.press(nextButton);
     expect(onNext).toHaveBeenCalled();
-  });
 
-  it('should not render when store is not provided', () => {
-    mockNav.mockReturnValue({
-      isPreviousHidden: true,
-      isNextDisabled: false,
-      nextLabel: 'Next',
-      previousLabel: 'Back',
-      currentStepPosition: 1,
-      totalSteps: 2,
-      onNext: jest.fn(),
-      onPrevious: jest.fn(),
-    });
-    const { queryByTestId } = render(<WizardNavigation store={null as any} />);
-    expect(queryByTestId('next-button')).toBeNull();
+    // Test back button
+    const backButton = screen.getByRole('button', { name: 'Back' });
+    fireEvent.press(backButton);
+    expect(onPrevious).toHaveBeenCalled();
   });
 
   it('should use custom button component when provided', () => {
@@ -235,7 +217,7 @@ describe('WizardNavigation', () => {
     });
 
     const { getByTestId } = render(
-      <WizardNavigation store={{} as any} ButtonComponent={CustomButton} />
+      <WizardNavigation ButtonComponent={CustomButton} />
     );
 
     const nextButton = getByTestId('next-button');
@@ -257,7 +239,7 @@ describe('WizardNavigation', () => {
     });
 
     const { getByTestId, rerender } = render(
-      <WizardNavigation store={{} as any} ButtonComponent={CustomButton} />
+      <WizardNavigation ButtonComponent={CustomButton} />
     );
 
     let nextButton = getByTestId('next-button');
@@ -276,7 +258,7 @@ describe('WizardNavigation', () => {
     });
 
     rerender(
-      <WizardNavigation store={{} as any} ButtonComponent={CustomButton} />
+      <WizardNavigation ButtonComponent={CustomButton} />
     );
     nextButton = getByTestId('next-button');
     expect(nextButton.props.accessibilityState.disabled).toBe(false);

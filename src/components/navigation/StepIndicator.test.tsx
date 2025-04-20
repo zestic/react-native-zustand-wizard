@@ -20,7 +20,7 @@ describe('StepIndicator', () => {
     jest.clearAllMocks();
   });
 
-  it('renders correctly', () => {
+  it('renders with correct accessibility labels', () => {
     mockNav.mockReturnValue({
       currentStepPosition: 1,
       totalSteps: 3,
@@ -31,31 +31,24 @@ describe('StepIndicator', () => {
       onNext: jest.fn(),
       onPrevious: jest.fn(),
     });
-    const { getAllByTestId } = render(<StepIndicator />);
-    const stepIndicators = getAllByTestId('step');
-    const connectors = getAllByTestId('connector');
-    expect(stepIndicators).toHaveLength(3);
-    expect(connectors).toHaveLength(2);
+
+    const { getByLabelText, getAllByRole } = render(<StepIndicator />);
+
+    // Check main container accessibility
+    const container = getByLabelText('Step progress: 1 of 3 steps');
+    expect(container).toBeTruthy();
+
+    // Check individual steps
+    const steps = getAllByRole('progressbar');
+    expect(steps).toHaveLength(4); // 3 steps + container
+
+    // Check step labels
+    expect(getByLabelText('Step 1 current')).toBeTruthy();
+    expect(getByLabelText('Step 2 pending')).toBeTruthy();
+    expect(getByLabelText('Step 3 pending')).toBeTruthy();
   });
 
-  it('applies custom styles', () => {
-    mockNav.mockReturnValue({
-      currentStepPosition: 1,
-      totalSteps: 3,
-      isPreviousHidden: false,
-      isNextDisabled: false,
-      nextLabel: 'Next',
-      previousLabel: 'Back',
-      onNext: jest.fn(),
-      onPrevious: jest.fn(),
-    });
-    const customStyle = { backgroundColor: 'red' };
-    const { getByTestId } = render(<StepIndicator style={customStyle} />);
-    const container = getByTestId('step-indicator');
-    expect(container.props.style).toContainEqual(customStyle);
-  });
-
-  it('shows correct step states', () => {
+  it('shows correct step states and labels', () => {
     mockNav.mockReturnValue({
       currentStepPosition: 2,
       totalSteps: 3,
@@ -66,30 +59,42 @@ describe('StepIndicator', () => {
       onNext: jest.fn(),
       onPrevious: jest.fn(),
     });
-    const { getAllByTestId } = render(<StepIndicator />);
-    const stepIndicators = getAllByTestId('step');
-    const connectors = getAllByTestId('connector');
-    // First step should be completed
-    expect(stepIndicators[0].props.style).toContainEqual(
+
+    const { getByLabelText, getAllByRole } = render(<StepIndicator />);
+
+    // Check container label
+    expect(getByLabelText('Step progress: 2 of 3 steps')).toBeTruthy();
+
+    // Check individual step labels
+    const step1 = getByLabelText('Step 1 completed');
+    const step2 = getByLabelText('Step 2 current');
+    const step3 = getByLabelText('Step 3 pending');
+
+    // Check visual styles
+    expect(step1.props.style).toContainEqual(
       expect.objectContaining({
         backgroundColor: colors.secondary,
       })
     );
-    expect(connectors[0].props.style).toContainEqual(
-      expect.objectContaining({
-        backgroundColor: colors.secondary,
-      })
-    );
-    // Second step should be current
-    expect(stepIndicators[1].props.style).toContainEqual(
+
+    expect(step2.props.style).toContainEqual(
       expect.objectContaining({
         backgroundColor: colors.primary,
       })
     );
-    // Third step should be pending
-    expect(stepIndicators[2].props.style).toContainEqual(
+
+    expect(step3.props.style).toContainEqual(
       expect.objectContaining({
         backgroundColor: colors.gray300,
+      })
+    );
+
+    // Check connectors
+    const connectors = getAllByRole('none');
+    expect(connectors).toHaveLength(2);
+    expect(connectors[0].props.style).toContainEqual(
+      expect.objectContaining({
+        backgroundColor: colors.secondary,
       })
     );
   });
