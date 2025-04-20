@@ -1,6 +1,9 @@
 # Build output
 lib/
 
+# Coverage
+coverage/
+
 # Node modules
 node_modules/
 

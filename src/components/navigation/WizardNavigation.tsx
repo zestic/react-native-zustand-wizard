@@ -76,7 +76,8 @@ export const WizardNavigation = observer(
       <View style={styles.container}>
         {indicatorPosition === 'above' && renderIndicator()}
         <View style={styles.rowButtons}>
-          <View>
+          {/* Left side - Previous button or empty space */}
+          <View style={styles.buttonLeft}>
             {!isPreviousHidden && (
               <ButtonComponent
                 onPress={onPrevious}
@@ -85,7 +86,8 @@ export const WizardNavigation = observer(
               />
             )}
           </View>
-          <View>
+          {/* Right side - Next button */}
+          <View style={styles.buttonRight}>
             <ButtonComponent
               onPress={onNext}
               title={nextLabel || ''}
@@ -102,10 +104,19 @@ export const WizardNavigation = observer(
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
+    backgroundColor: colors.primary,
     borderRadius: 8,
     minWidth: 80,
     paddingHorizontal: 16,
     paddingVertical: 8,
+  },
+  buttonLeft: {
+    alignItems: 'flex-start',
+    flex: 1,
+  },
+  buttonRight: {
+    alignItems: 'flex-end',
+    flex: 1,
   },
   buttonText: {
     color: colors.white,
@@ -126,7 +137,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   disabledButton: {
-    backgroundColor: colors.gray200,
+    backgroundColor: colors.gray300,
+    borderColor: colors.primaryLight,
+    borderWidth: 1,
   },
   disabledButtonText: {
     color: colors.gray400,
@@ -144,7 +157,6 @@ const styles = StyleSheet.create({
   rowButtons: {
     alignItems: 'center',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    width: '100%',
   },
 });

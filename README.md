@@ -33,7 +33,7 @@ const steps: Step[] = [
   {
     id: 'step1',
     component: Step1Component,
-    order: 0,
+    order: 1 , 
     canMoveNext: true,
     nextLabel: 'Continue',
     previousLabel: 'Go Back'
@@ -41,7 +41,7 @@ const steps: Step[] = [
   {
     id: 'step2',
     component: Step2Component,
-    order: 1
+    order: 2
   }
 ];
 
