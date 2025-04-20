@@ -1,0 +1,32 @@
+# Development
+.github
+.vscode
+.idea
+.expo
+example
+coverage
+__tests__
+__mocks__
+__fixtures__
+
+# Source code
+src
+tsconfig.json
+babel.config.js
+metro.config.js
+jest.config.js
+.eslintrc.js
+.prettierrc.js
+
+# Documentation
+docs
+*.md
+!README.md
+!CHANGELOG.md
+!LICENSE
+
+# Build artifacts
+*.log
+.DS_Store
+.env*
+*.tgz

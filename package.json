@@ -20,8 +20,33 @@
     "form",
     "stepper"
   ],
-  "repository": "",
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xaddax/react-native-mst-wizard.git"
+  },
+  "author": "xaddax",
+  "bugs": {
+    "url": "https://github.com/xaddax/react-native-mst-wizard/issues"
+  },
+  "homepage": "https://github.com/xaddax/react-native-mst-wizard#readme",
+  "scripts": {
+    "build": "bob build",
+    "clean": "del-cli lib",
+    "prepare": "bob build",
+    "prepack": "yarn clean && yarn build",
+    "release": "release-it",
+    "typescript": "tsc --noEmit",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
+    "storybook": "npx expo start",
+    "storybook:ios": "npx expo start --ios",
+    "storybook:android": "npx expo start --android",
+    "storybook:web": "npx expo start --web"
+  },
   "license": "MIT",
   "peerDependencies": {
     "mobx": ">=6.12.0",
@@ -83,21 +108,7 @@
     "storybook": "^8.6.12",
     "typescript": "^5.0.4"
   },
-  "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "typescript": "tsc --noEmit",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{js,ts,tsx,json,md}\"",
-    "build": "tsc",
-    "prepare": "tsc",
-    "storybook": "npx expo start",
-    "storybook:ios": "npx expo start --ios",
-    "storybook:android": "npx expo start --android",
-    "storybook:web": "npx expo start --web"
-  },
+
   "dependencies": {
     "mobx-react": "^9.2.0",
     "tslib": "^2.6.2"
