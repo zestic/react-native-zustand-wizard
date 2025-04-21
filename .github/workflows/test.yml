@@ -36,32 +36,17 @@ jobs:
       with:
         cmd: install
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Run tests with coverage
+      run: yarn test:coverage
+
+    - name: Verify coverage directory
       run: |
-        echo "Node version:"
-        node --version
-        echo "Yarn version:"
-        yarn --version
-        echo "Jest version:"
-        yarn jest --version
-        echo "Working directory:"
-        pwd
-        echo "Creating coverage directory..."
-        mkdir -p coverage
-        chmod 777 coverage
-        echo "Running tests with coverage..."
-        yarn test:coverage
-        echo "Test command completed"
-        ls -la
-        echo "Contents of current directory"
+        echo "Coverage directory contents:"
         ls -la coverage/
-        echo "Contents of coverage directory"
-        find . -name "lcov.info" -type f
-        echo "Searching for lcov.info files"
-        echo "Jest config:"
-        cat jest.config.js
+        echo "Verifying lcov.info:"
+        test -f coverage/lcov.info || (echo "lcov.info not found" && exit 1)
     
     - name: Upload coverage report
       uses: codecov/codecov-action@v3
