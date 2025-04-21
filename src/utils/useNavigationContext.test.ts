@@ -44,7 +44,7 @@ describe('useNavigationContext', () => {
     });
     setWizardUtilsStore(store);
 
-    const { result } = renderHook(() => useNavigationContext());
+    const { rerender, result } = renderHook(() => useNavigationContext());
 
     // Initial values
     expect(result.current).toEqual({
@@ -75,6 +75,7 @@ describe('useNavigationContext', () => {
       previousButtonLabel: store.previousButtonLabel,
     });
 
+    rerender();
     // Debug hook state
     console.log('Hook state:', result.current);
 
