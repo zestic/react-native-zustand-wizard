@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, RenderAPI, screen } from '@testing-library/react-native';
 import { WizardNavigation } from './WizardNavigation';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigationContext } from '../../utils/wizardUtils';
 
 jest.mock('../../utils/wizardUtils', () => {
@@ -16,14 +16,12 @@ const mockNav = useNavigationContext as jest.Mock;
 
 describe('WizardNavigation', () => {
   const CustomButton = ({
-    onPress,
     title,
     disabled,
-    accessibilityState,
   }: any) => (
-    <View accessibilityState={accessibilityState} accessibilityRole="button">
+    <TouchableOpacity accessibilityState={{ disabled }} accessibilityRole="button">
       <Text>{title}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   const CustomStepIndicator = () => {
@@ -216,11 +214,11 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    const { getByTestId } = render(
+    render(
       <WizardNavigation ButtonComponent={CustomButton} />
     );
 
-    const nextButton = getByTestId('next-button');
+    const nextButton = screen.getByRole('button', { name: 'Next' });
     expect(nextButton).toBeTruthy();
     expect(nextButton.props.accessibilityState.disabled).toBe(false);
   });
@@ -238,11 +236,11 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    const { getByTestId, rerender } = render(
+    render(
       <WizardNavigation ButtonComponent={CustomButton} />
     );
 
-    let nextButton = getByTestId('next-button');
+    const nextButton = screen.getByRole('button', { name: 'Next' });
     expect(nextButton.props.accessibilityState.disabled).toBe(true);
 
     // Test case 2: canMoveNext is true
@@ -257,10 +255,10 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    rerender(
+    render(
       <WizardNavigation ButtonComponent={CustomButton} />
     );
-    nextButton = getByTestId('next-button');
-    expect(nextButton.props.accessibilityState.disabled).toBe(false);
+    const updatedNextButton = screen.getByRole('button', { name: 'Next' });
+    expect(updatedNextButton.props.accessibilityState.disabled).toBe(false);
   });
 });

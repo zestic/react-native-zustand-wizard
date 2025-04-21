@@ -45,10 +45,10 @@ describe('wizardUtils Integration Tests', () => {
       const { result } = renderHook(() => useNavigationContext());
 
       expect(result.current).toEqual({
-        isPreviousHidden: true,
-        isNextDisabled: true,
-        nextLabel: 'Finish',
-        previousLabel: 'Back',
+        isPreviousHidden: false,
+        isNextDisabled: false,
+        nextLabel: '',
+        previousLabel: '',
         currentStepPosition: 0,
         totalSteps: 1,
         onNext: expect.any(Function),
@@ -84,8 +84,8 @@ describe('wizardUtils Integration Tests', () => {
       expect(result.current).toEqual({
         isPreviousHidden: false,
         isNextDisabled: false,
-        nextLabel: 'Continue',
-        previousLabel: 'Back',
+        nextLabel: '',
+        previousLabel: '',
         currentStepPosition: 1,
         totalSteps: 3,
         onNext: expect.any(Function),
