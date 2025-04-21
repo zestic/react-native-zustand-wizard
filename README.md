@@ -2,6 +2,8 @@
 
 A React Native wizard component powered by MobX-State-Tree (MST) for building complex, multi-step flows with robust state management.
 
+[![codecov](https://codecov.io/gh/xaddax/react-native-mst-wizard/branch/main/graph/badge.svg?token=U5KXG146YC)](https://codecov.io/gh/xaddax/react-native-mst-wizard)
+
 ## Features
 
 - Type-safe wizard implementation with full TypeScript support
