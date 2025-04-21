@@ -33,16 +33,16 @@ const steps: Step[] = [
   {
     id: 'step1',
     component: Step1Component,
-    order: 1 , 
+    order: 1,
     canMoveNext: true,
     nextLabel: 'Continue',
-    previousLabel: 'Go Back'
+    previousLabel: 'Go Back',
   },
   {
     id: 'step2',
     component: Step2Component,
-    order: 2
-  }
+    order: 2,
+  },
 ];
 
 const MyWizard = () => (
@@ -98,7 +98,7 @@ const CustomNavigation = observer(() => {
     nextLabel,
     previousLabel,
     onNext,
-    onPrevious
+    onPrevious,
   } = useNavigationContext();
 
   return (
@@ -109,16 +109,9 @@ const CustomNavigation = observer(() => {
       />
       <View>
         {!isPreviousHidden && (
-          <Button
-            title={previousLabel}
-            onPress={onPrevious}
-          />
+          <Button title={previousLabel} onPress={onPrevious} />
         )}
-        <Button
-          title={nextLabel}
-          onPress={onNext}
-          disabled={isNextDisabled}
-        />
+        <Button title={nextLabel} onPress={onNext} disabled={isNextDisabled} />
       </View>
     </View>
   );
@@ -126,10 +119,7 @@ const CustomNavigation = observer(() => {
 
 // Using Custom Navigation
 const MyWizard = () => (
-  <Wizard
-    steps={steps}
-    renderNavigation={(store) => <CustomNavigation />}
-  />
+  <Wizard steps={steps} renderNavigation={(store) => <CustomNavigation />} />
 );
 ```
 
@@ -150,7 +140,7 @@ const CustomStepIndicator = observer(() => {
           style={[
             styles.step,
             step === currentStepPosition && styles.activeStep,
-            step < currentStepPosition && styles.completedStep
+            step < currentStepPosition && styles.completedStep,
           ]}
         />
       ))}

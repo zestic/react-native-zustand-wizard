@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, fireEvent, RenderAPI, screen } from '@testing-library/react-native';
+import {
+  render,
+  fireEvent,
+  RenderAPI,
+  screen,
+} from '@testing-library/react-native';
 import { WizardNavigation } from './WizardNavigation';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useNavigationContext } from '../../utils/wizardUtils';
@@ -15,11 +20,11 @@ jest.mock('../../utils/wizardUtils', () => {
 const mockNav = useNavigationContext as jest.Mock;
 
 describe('WizardNavigation', () => {
-  const CustomButton = ({
-    title,
-    disabled,
-  }: any) => (
-    <TouchableOpacity accessibilityState={{ disabled }} accessibilityRole="button">
+  const CustomButton = ({ title, disabled }: any) => (
+    <TouchableOpacity
+      accessibilityState={{ disabled }}
+      accessibilityRole="button"
+    >
       <Text>{title}</Text>
     </TouchableOpacity>
   );
@@ -53,11 +58,7 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    render(
-      <WizardNavigation
-        StepIndicatorComponent={CustomStepIndicator}
-      />
-    );
+    render(<WizardNavigation StepIndicatorComponent={CustomStepIndicator} />);
 
     // Verify back button is not present
     const backButton = screen.queryByRole('button', { name: 'Back' });
@@ -85,9 +86,7 @@ describe('WizardNavigation', () => {
     });
 
     const { getByRole } = render(
-      <WizardNavigation
-        StepIndicatorComponent={CustomStepIndicator}
-      />
+      <WizardNavigation StepIndicatorComponent={CustomStepIndicator} />
     );
 
     // Verify back button is present and enabled
@@ -133,11 +132,7 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    render(
-      <WizardNavigation
-        StepIndicatorComponent={CustomStepIndicator}
-      />
-    );
+    render(<WizardNavigation StepIndicatorComponent={CustomStepIndicator} />);
 
     const indicator = screen.getByLabelText('Step progress: 1 of 2 steps');
     expect(indicator).toBeTruthy();
@@ -187,9 +182,7 @@ describe('WizardNavigation', () => {
       onPrevious,
     });
 
-    render(
-      <WizardNavigation />
-    );
+    render(<WizardNavigation />);
 
     // Test next button
     const nextButton = screen.getByRole('button', { name: 'Next' });
@@ -214,9 +207,7 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    render(
-      <WizardNavigation ButtonComponent={CustomButton} />
-    );
+    render(<WizardNavigation ButtonComponent={CustomButton} />);
 
     const nextButton = screen.getByRole('button', { name: 'Next' });
     expect(nextButton).toBeTruthy();
@@ -236,9 +227,7 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    render(
-      <WizardNavigation ButtonComponent={CustomButton} />
-    );
+    render(<WizardNavigation ButtonComponent={CustomButton} />);
 
     const nextButton = screen.getByRole('button', { name: 'Next' });
     expect(nextButton.props.accessibilityState.disabled).toBe(true);
@@ -255,9 +244,7 @@ describe('WizardNavigation', () => {
       onPrevious: jest.fn(),
     });
 
-    render(
-      <WizardNavigation ButtonComponent={CustomButton} />
-    );
+    render(<WizardNavigation ButtonComponent={CustomButton} />);
     const updatedNextButton = screen.getByRole('button', { name: 'Next' });
     expect(updatedNextButton.props.accessibilityState.disabled).toBe(false);
   });

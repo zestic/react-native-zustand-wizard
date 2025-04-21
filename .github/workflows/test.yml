@@ -9,6 +9,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     strategy:
       matrix:
@@ -35,9 +39,29 @@ jobs:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         
     - name: Run tests with coverage
-      uses: borales/actions-yarn@v4
-      with:
-        cmd: test:coverage
+      run: |
+        echo "Node version:"
+        node --version
+        echo "Yarn version:"
+        yarn --version
+        echo "Jest version:"
+        yarn jest --version
+        echo "Working directory:"
+        pwd
+        echo "Creating coverage directory..."
+        mkdir -p coverage
+        chmod 777 coverage
+        echo "Running tests with coverage..."
+        yarn test:coverage
+        echo "Test command completed"
+        ls -la
+        echo "Contents of current directory"
+        ls -la coverage/
+        echo "Contents of coverage directory"
+        find . -name "lcov.info" -type f
+        echo "Searching for lcov.info files"
+        echo "Jest config:"
+        cat jest.config.js
     
     - name: Upload coverage report
       uses: codecov/codecov-action@v3

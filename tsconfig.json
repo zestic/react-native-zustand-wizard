@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "ES2021",
     "module": "ESNext",
-    "lib": [
-      "ES2021"
-    ],
+    "lib": ["ES2021"],
     "jsx": "react-native",
     "strict": true,
     "noImplicitAny": true,
@@ -35,16 +33,11 @@
     "baseUrl": ".",
     "noEmit": false,
     "paths": {
-      "*": [
-        "src/*"
-      ]
+      "*": ["src/*"]
     },
     "outDir": "./lib"
   },
-  "include": [
-    "src/**/*",
-    "__tests__/**/*"
-  ],
+  "include": ["src/**/*", "__tests__/**/*"],
   "exclude": [
     "node_modules",
     "lib",

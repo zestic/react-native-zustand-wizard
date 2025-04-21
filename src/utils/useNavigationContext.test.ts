@@ -33,7 +33,13 @@ describe('useNavigationContext', () => {
       currentStepPosition: 1,
       steps: [
         { id: 'step1', order: 1, canMoveNext: true },
-        { id: 'step2', order: 2, canMoveNext: false, nextLabel: 'Onward', previousLabel: 'Backward' },
+        {
+          id: 'step2',
+          order: 2,
+          canMoveNext: false,
+          nextLabel: 'Onward',
+          previousLabel: 'Backward',
+        },
       ],
     });
     setWizardUtilsStore(store);
@@ -56,7 +62,7 @@ describe('useNavigationContext', () => {
     await act(async () => {
       await store.setCurrentStep('step2');
       // Give the hook time to sync with store
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
     // Debug store state
@@ -66,7 +72,7 @@ describe('useNavigationContext', () => {
       isFirstStep: store.isFirstStep,
       canMoveNext: store.canMoveNext,
       nextButtonLabel: store.nextButtonLabel,
-      previousButtonLabel: store.previousButtonLabel
+      previousButtonLabel: store.previousButtonLabel,
     });
 
     // Debug hook state
@@ -121,12 +127,12 @@ describe('useNavigationContext', () => {
     const store = WizardStore.create({
       currentStepPosition: 1,
       steps: [
-        { 
-          id: 'step1', 
-          order: 1, 
+        {
+          id: 'step1',
+          order: 1,
           canMoveNext: true,
           nextLabel: 'Continue',
-          previousLabel: 'Go Back'
+          previousLabel: 'Go Back',
         },
       ],
     });

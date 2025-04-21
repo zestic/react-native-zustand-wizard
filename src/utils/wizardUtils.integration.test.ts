@@ -1,4 +1,8 @@
-import { setWizardUtilsStore, useNavigationContext, useStepContext } from './wizardUtils';
+import {
+  setWizardUtilsStore,
+  useNavigationContext,
+  useStepContext,
+} from './wizardUtils';
 import { renderHook, act } from '@testing-library/react-hooks';
 
 describe('wizardUtils Integration Tests', () => {
@@ -99,7 +103,9 @@ describe('wizardUtils Integration Tests', () => {
       const TEST_STEP_ID = 'test-step';
       const mockStep = {
         canMoveNext: false,
-        setCanMoveNext: jest.fn(function(this: any, value: boolean) { this.canMoveNext = value; }),
+        setCanMoveNext: jest.fn(function (this: any, value: boolean) {
+          this.canMoveNext = value;
+        }),
       };
       store = {
         currentStepPosition: 1,

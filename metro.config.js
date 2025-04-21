@@ -10,4 +10,3 @@ module.exports = withStorybook(defaultConfig, {
   useJs: true,
   storybookEnabled: true,
 });
-

@@ -33,6 +33,7 @@ example/
 ### 1. Define Step Components
 
 Each step component should:
+
 - Accept `store` and `onComplete` props
 - Use the `useStepContext` hook to access the store and helper functions
 - Implement validation logic
@@ -42,7 +43,13 @@ Example:
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { WizardStoreType } from '../../../src/types/store';
 import { useStepContext } from '../../../src/utils/wizardUtils';
@@ -50,11 +57,11 @@ import { useStepContext } from '../../../src/utils/wizardUtils';
 // Define validation function
 const validateStep = (data: any) => {
   const errors: Record<string, string> = {};
-  
+
   if (!data.field) {
     errors.field = 'Field is required';
   }
-  
+
   return errors;
 };
 
@@ -63,52 +70,57 @@ interface StepProps {
   onComplete: () => void;
 }
 
-export const StepComponent: React.FC<StepProps> = observer(({ store, onComplete }) => {
-  // Use the step context hook
-  const { updateField, getStepData } = useStepContext('stepId', store);
-  
-  // Get the current step data
-  const stepData = getStepData();
-  
-  // State for validation errors
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  
-  // Validate the form when data changes
-  useEffect(() => {
-    const validationErrors = validateStep(stepData);
-    setErrors(validationErrors);
-  }, [stepData]);
-  
-  // Handle form submission
-  const handleSubmit = () => {
-    const validationErrors = validateStep(stepData);
-    setErrors(validationErrors);
-    
-    if (Object.keys(validationErrors).length === 0) {
-      onComplete();
-    }
-  };
-  
-  return (
-    <View style={styles.container}>
-      <TextInput
-        style={[styles.input, errors.field && styles.inputError]}
-        value={stepData.field || ''}
-        onChangeText={(value) => updateField('field', value)}
-        placeholder="Enter value"
-      />
-      {errors.field && <Text style={styles.errorText}>{errors.field}</Text>}
-      
-      <TouchableOpacity
-        style={[styles.button, Object.keys(errors).length > 0 && styles.buttonDisabled]}
-        onPress={handleSubmit}
-        disabled={Object.keys(errors).length > 0}
-      >
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-    </View>
-  );
-});
+export const StepComponent: React.FC<StepProps> = observer(
+  ({ store, onComplete }) => {
+    // Use the step context hook
+    const { updateField, getStepData } = useStepContext('stepId', store);
+
+    // Get the current step data
+    const stepData = getStepData();
+
+    // State for validation errors
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Validate the form when data changes
+    useEffect(() => {
+      const validationErrors = validateStep(stepData);
+      setErrors(validationErrors);
+    }, [stepData]);
+
+    // Handle form submission
+    const handleSubmit = () => {
+      const validationErrors = validateStep(stepData);
+      setErrors(validationErrors);
+
+      if (Object.keys(validationErrors).length === 0) {
+        onComplete();
+      }
+    };
+
+    return (
+      <View style={styles.container}>
+        <TextInput
+          style={[styles.input, errors.field && styles.inputError]}
+          value={stepData.field || ''}
+          onChangeText={(value) => updateField('field', value)}
+          placeholder="Enter value"
+        />
+        {errors.field && <Text style={styles.errorText}>{errors.field}</Text>}
+
+        <TouchableOpacity
+          style={[
+            styles.button,
+            Object.keys(errors).length > 0 && styles.buttonDisabled,
+          ]}
+          onPress={handleSubmit}
+          disabled={Object.keys(errors).length > 0}
+        >
+          <Text style={styles.buttonText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+);
 ```
 
 ### 2. Create a Wizard Component
@@ -136,141 +148,149 @@ interface RegistrationWizardProps {
   preloadData?: boolean;
 }
 
-const RegistrationWizard: React.FC<RegistrationWizardProps> = observer(({ 
-  onComplete,
-  preloadData = false
-}) => {
-  const [isLoading, setIsLoading] = useState(preloadData);
-  const [isPreloaded, setIsPreloaded] = useState(false);
-  
-  // Define the steps for the wizard with proper typing
-  const steps: StepConfig[] = [
-    {
-      id: 'personalInfo',
-      title: 'Personal Information',
-      component: PersonalInfoStep,
-      order: 1
-    },
-    {
-      id: 'contactInfo',
-      title: 'Contact Information',
-      component: ContactInfoStep,
-      order: 2
-    },
-    {
-      id: 'security',
-      title: 'Security',
-      component: SecurityStep,
-      order: 3
-    },
-    {
-      id: 'preferences',
-      title: 'Preferences',
-      component: PreferencesStep,
-      order: 4
-    },
-    {
-      id: 'review',
-      title: 'Review',
-      component: ReviewStep,
-      order: 5
-    }
-  ];
-  
-  // Sort steps by order
-  const sortedSteps = [...steps].sort((a, b) => (a.order || 0) - (b.order || 0));
-  
-  // Create a store instance
-  const store = WizardStore.create({
-    currentStepId: sortedSteps[0].id,
-    steps: sortedSteps,
-    stepData: {},
-    isLoading: false
-  });
-  
-  // Initialize the wizard store for the utility function
-  setWizardUtilsStore(store);
-  
-  // Preload data if needed
-  useEffect(() => {
-    if (preloadData && !isPreloaded) {
-      const preloadWizardData = async () => {
-        try {
-          // Simulate API call to fetch initial data
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Set some initial data for each step
-          store.updateField('personalInfo', 'firstName', 'John');
-          store.updateField('personalInfo', 'lastName', 'Doe');
-          store.updateField('personalInfo', 'dateOfBirth', new Date('1990-01-01'));
-          
-          store.updateField('contactInfo', 'email', 'john.doe@example.com');
-          store.updateField('contactInfo', 'phone', '123-456-7890');
-          store.updateField('contactInfo', 'address', '123 Main St');
-          store.updateField('contactInfo', 'city', 'Anytown');
-          store.updateField('contactInfo', 'state', 'CA');
-          store.updateField('contactInfo', 'zipCode', '12345');
-          
-          store.updateField('preferences', 'language', 'en');
-          store.updateField('preferences', 'theme', 'light');
-          store.updateField('preferences', 'newsletter', true);
-          store.updateField('preferences', 'marketing', false);
-          
-          setIsPreloaded(true);
-          setIsLoading(false);
-        } catch (error) {
-          Alert.alert('Error', 'Failed to preload data. Please try again.');
-          setIsLoading(false);
-        }
-      };
-      
-      preloadWizardData();
-    }
-  }, [preloadData, isPreloaded, store]);
-  
-  const handleComplete = async () => {
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Get all wizard data in a single call
-      const registrationData = store.getWizardData();
-      
-      // Call the onComplete callback with the collected data
-      if (onComplete) {
-        onComplete(registrationData);
-      } else {
-        Alert.alert('Registration Complete', 'Your account has been created successfully!');
+const RegistrationWizard: React.FC<RegistrationWizardProps> = observer(
+  ({ onComplete, preloadData = false }) => {
+    const [isLoading, setIsLoading] = useState(preloadData);
+    const [isPreloaded, setIsPreloaded] = useState(false);
+
+    // Define the steps for the wizard with proper typing
+    const steps: StepConfig[] = [
+      {
+        id: 'personalInfo',
+        title: 'Personal Information',
+        component: PersonalInfoStep,
+        order: 1,
+      },
+      {
+        id: 'contactInfo',
+        title: 'Contact Information',
+        component: ContactInfoStep,
+        order: 2,
+      },
+      {
+        id: 'security',
+        title: 'Security',
+        component: SecurityStep,
+        order: 3,
+      },
+      {
+        id: 'preferences',
+        title: 'Preferences',
+        component: PreferencesStep,
+        order: 4,
+      },
+      {
+        id: 'review',
+        title: 'Review',
+        component: ReviewStep,
+        order: 5,
+      },
+    ];
+
+    // Sort steps by order
+    const sortedSteps = [...steps].sort(
+      (a, b) => (a.order || 0) - (b.order || 0)
+    );
+
+    // Create a store instance
+    const store = WizardStore.create({
+      currentStepId: sortedSteps[0].id,
+      steps: sortedSteps,
+      stepData: {},
+      isLoading: false,
+    });
+
+    // Initialize the wizard store for the utility function
+    setWizardUtilsStore(store);
+
+    // Preload data if needed
+    useEffect(() => {
+      if (preloadData && !isPreloaded) {
+        const preloadWizardData = async () => {
+          try {
+            // Simulate API call to fetch initial data
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            // Set some initial data for each step
+            store.updateField('personalInfo', 'firstName', 'John');
+            store.updateField('personalInfo', 'lastName', 'Doe');
+            store.updateField(
+              'personalInfo',
+              'dateOfBirth',
+              new Date('1990-01-01')
+            );
+
+            store.updateField('contactInfo', 'email', 'john.doe@example.com');
+            store.updateField('contactInfo', 'phone', '123-456-7890');
+            store.updateField('contactInfo', 'address', '123 Main St');
+            store.updateField('contactInfo', 'city', 'Anytown');
+            store.updateField('contactInfo', 'state', 'CA');
+            store.updateField('contactInfo', 'zipCode', '12345');
+
+            store.updateField('preferences', 'language', 'en');
+            store.updateField('preferences', 'theme', 'light');
+            store.updateField('preferences', 'newsletter', true);
+            store.updateField('preferences', 'marketing', false);
+
+            setIsPreloaded(true);
+            setIsLoading(false);
+          } catch (error) {
+            Alert.alert('Error', 'Failed to preload data. Please try again.');
+            setIsLoading(false);
+          }
+        };
+
+        preloadWizardData();
       }
-      
-      // Reset the store for future use
-      store.reset();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to complete registration. Please try again.');
-    } finally {
-      setIsLoading(false);
+    }, [preloadData, isPreloaded, store]);
+
+    const handleComplete = async () => {
+      setIsLoading(true);
+
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Get all wizard data in a single call
+        const registrationData = store.getWizardData();
+
+        // Call the onComplete callback with the collected data
+        if (onComplete) {
+          onComplete(registrationData);
+        } else {
+          Alert.alert(
+            'Registration Complete',
+            'Your account has been created successfully!'
+          );
+        }
+
+        // Reset the store for future use
+        store.reset();
+      } catch (error) {
+        Alert.alert(
+          'Error',
+          'Failed to complete registration. Please try again.'
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      );
     }
-  };
-  
-  if (isLoading) {
+
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View style={styles.container}>
+        <Wizard store={store} isLoading={isLoading} />
       </View>
     );
   }
-  
-  return (
-    <View style={styles.container}>
-      <Wizard
-        store={store}
-        isLoading={isLoading}
-      />
-    </View>
-  );
-});
+);
 ```
 
 ### 3. Use the Wizard in Your App
@@ -285,11 +305,11 @@ const App = () => {
     console.log('Registration data:', data);
     // Handle the registration data
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
-      <RegistrationWizard 
-        onComplete={handleComplete} 
+      <RegistrationWizard
+        onComplete={handleComplete}
         preloadData={true} // Set to true to preload data
       />
     </SafeAreaView>
@@ -347,13 +367,13 @@ const steps: StepConfig[] = [
     id: 'personalInfo',
     title: 'Personal Information',
     component: PersonalInfoStep,
-    order: 1
+    order: 1,
   },
   {
     id: 'contactInfo',
     title: 'Contact Information',
     component: ContactInfoStep,
-    order: 2
+    order: 2,
   },
   // ...
 ];
@@ -363,6 +383,7 @@ const sortedSteps = [...steps].sort((a, b) => (a.order || 0) - (b.order || 0));
 ```
 
 This allows you to:
+
 - Define steps in any order in your code
 - Ensure they are displayed in the correct sequence
 - Easily reorder steps by changing the `order` property
@@ -373,19 +394,21 @@ This allows you to:
 The wizard supports preloading data for testing or when editing existing data:
 
 ```tsx
-<RegistrationWizard 
-  onComplete={handleComplete} 
+<RegistrationWizard
+  onComplete={handleComplete}
   preloadData={true} // Set to true to preload data
 />
 ```
 
 When `preloadData` is set to `true`, the wizard will:
+
 1. Show a loading indicator
 2. Simulate an API call to fetch initial data
 3. Populate the wizard with the fetched data
 4. Display the wizard with the preloaded data
 
 This is useful for:
+
 - Testing the wizard with realistic data
 - Editing existing user data
 - Creating a consistent demo experience
@@ -399,11 +422,11 @@ The example demonstrates how to implement form validation in each step component
 ```tsx
 const validateStep = (data: any) => {
   const errors: Record<string, string> = {};
-  
+
   if (!data.field) {
     errors.field = 'Field is required';
   }
-  
+
   return errors;
 };
 ```
@@ -426,14 +449,19 @@ useEffect(() => {
 4. **Display Validation Errors**: Validation errors are displayed below each field.
 
 ```tsx
-{errors.field && <Text style={styles.errorText}>{errors.field}</Text>}
+{
+  errors.field && <Text style={styles.errorText}>{errors.field}</Text>;
+}
 ```
 
 5. **Disable Submit Button**: The submit button is disabled if there are validation errors.
 
 ```tsx
 <TouchableOpacity
-  style={[styles.button, Object.keys(errors).length > 0 && styles.buttonDisabled]}
+  style={[
+    styles.button,
+    Object.keys(errors).length > 0 && styles.buttonDisabled,
+  ]}
   onPress={handleSubmit}
   disabled={Object.keys(errors).length > 0}
 >
@@ -467,4 +495,4 @@ The wizard can be customized by:
 - **Type Safety**: MST provides type safety for your state, making it easier to catch errors at compile time.
 - **Reactivity**: MST automatically updates the UI when the state changes.
 - **Immutability**: MST ensures that state changes are immutable, making it easier to track changes and debug.
-- **DevTools**: MST integrates with Redux DevTools, making it easier to debug your application. 
+- **DevTools**: MST integrates with Redux DevTools, making it easier to debug your application.

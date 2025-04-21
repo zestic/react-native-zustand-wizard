@@ -37,7 +37,7 @@ describe('wizardUtils Navigation Tests', () => {
       });
 
       const { result } = renderHook(() => useNavigationContext());
-      
+
       expect(result.current).toEqual({
         isPreviousHidden: true,
         isNextDisabled: false,

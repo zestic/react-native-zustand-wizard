@@ -63,8 +63,16 @@ describe('StepModel', () => {
   });
 
   it('enforces type safety', () => {
-    expect(() => StepModel.create({ id: 1, order: 'not-a-number', canMoveNext: false } as any)).toThrow();
-    expect(() => StepModel.create({ id: 'step5', order: 5, canMoveNext: 'yes' as any })).toThrow();
+    expect(() =>
+      StepModel.create({
+        id: 1,
+        order: 'not-a-number',
+        canMoveNext: false,
+      } as any)
+    ).toThrow();
+    expect(() =>
+      StepModel.create({ id: 'step5', order: 5, canMoveNext: 'yes' as any })
+    ).toThrow();
   });
 
   it('snapshot matches expected structure', () => {

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-04-20
 
 ### Added
+
 - Initial release of react-native-mst-wizard
 - Core wizard functionality with MST state management
 - Step-based navigation with customizable components

@@ -7,7 +7,7 @@ module.exports = {
   framework: {
     name: '@storybook/react-native',
     options: {
-      watchman: false
-    }
-  }
+      watchman: false,
+    },
+  },
 };
