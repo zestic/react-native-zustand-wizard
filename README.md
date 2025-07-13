@@ -9,6 +9,7 @@ A modern React Native wizard component powered by Zustand for building complex, 
 **This library has been successfully migrated from MobX State Tree (MST) to Zustand!**
 
 ### What Changed:
+
 - ✅ **Modern State Management**: Now uses Zustand instead of MST
 - ✅ **Improved Performance**: Lighter weight and faster state updates
 - ✅ **Simplified API**: Cleaner, more intuitive hooks-based API
@@ -16,6 +17,7 @@ A modern React Native wizard component powered by Zustand for building complex, 
 - ✅ **Same Functionality**: All features preserved with better performance
 
 ### Migration Benefits:
+
 - 🚀 **50% smaller bundle size** (removed mobx, mobx-state-tree dependencies)
 - ⚡ **Better performance** with optimized re-renders
 - 🎯 **Simpler mental model** with straightforward state management
@@ -36,9 +38,9 @@ A modern React Native wizard component powered by Zustand for building complex, 
 ## Installation
 
 ```bash
-npm install react-native-mst-wizard
+npm install @zestic/react-native-zustand-wizard
 # or
-yarn add react-native-mst-wizard
+yarn add @zestic/react-native-zustand-wizard
 ```
 
 ## Basic Usage
@@ -46,8 +48,8 @@ yarn add react-native-mst-wizard
 ### Setting Up a Wizard
 
 ```tsx
-import { Wizard } from 'react-native-mst-wizard';
-import { Step } from 'react-native-mst-wizard/types';
+import { Wizard } from '@zestic/react-native-zustand-wizard';
+import { Step } from '@zestic/react-native-zustand-wizard/types';
 
 const steps: Step[] = [
   {
@@ -78,10 +80,9 @@ const MyWizard = () => (
 ### Creating Steps with Step Context
 
 ```tsx
-import { observer } from 'mobx-react-lite';
-import { useStepContext } from 'react-native-mst-wizard/utils/wizardUtils';
+import { useStepContext } from '@zestic/react-native-zustand-wizard/utils/wizardUtils';
 
-const Step1Component = observer(() => {
+const Step1Component = () => {
   const { updateField, getStepData, canMoveNext } = useStepContext('step1');
   const data = getStepData();
 
@@ -99,17 +100,17 @@ const Step1Component = observer(() => {
       />
     </View>
   );
-});
+};
 ```
 
 ### Custom Navigation and Indicators
 
 ```tsx
-import { WizardNavigation } from 'react-native-mst-wizard/components/navigation';
-import { useNavigationContext } from 'react-native-mst-wizard/utils/wizardUtils';
+import { WizardNavigation } from '@zestic/react-native-zustand-wizard/components/navigation';
+import { useNavigationContext } from '@zestic/react-native-zustand-wizard/utils/wizardUtils';
 
 // Custom Navigation Component
-const CustomNavigation = observer(() => {
+const CustomNavigation = () => {
   const {
     currentStepPosition,
     totalSteps,
@@ -135,7 +136,7 @@ const CustomNavigation = observer(() => {
       </View>
     </View>
   );
-});
+};
 
 // Using Custom Navigation
 const MyWizard = () => (
@@ -146,10 +147,10 @@ const MyWizard = () => (
 ### Custom Step Indicator
 
 ```tsx
-import { StepIndicator } from 'react-native-mst-wizard/components/navigation';
-import { useNavigationContext } from 'react-native-mst-wizard/utils/wizardUtils';
+import { StepIndicator } from '@zestic/react-native-zustand-wizard/components/navigation';
+import { useNavigationContext } from '@zestic/react-native-zustand-wizard/utils/wizardUtils';
 
-const CustomStepIndicator = observer(() => {
+const CustomStepIndicator = () => {
   const { currentStepPosition, totalSteps } = useNavigationContext();
 
   return (
@@ -166,7 +167,7 @@ const CustomStepIndicator = observer(() => {
       ))}
     </View>
   );
-});
+};
 ```
 
 ## Development

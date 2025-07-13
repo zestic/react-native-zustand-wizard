@@ -1,8 +1,4 @@
 import React from 'react';
-import { Instance } from 'mobx-state-tree';
-import { WizardStore } from '../stores/WizardStore';
-
-export type WizardStoreType = Instance<typeof WizardStore>;
 
 // Store action types
 export interface WizardStoreActions {
@@ -20,8 +16,17 @@ export interface WizardStoreViews {
   canMoveBack: () => boolean;
 }
 
+// Store state types
+export interface WizardStoreState {
+  currentStepId: string;
+  stepData: Record<string, Record<string, unknown>>;
+  completedSteps: Set<string>;
+  error?: string;
+  isLoading: boolean;
+}
+
 // Combined store type
-export type WizardStore = WizardStoreType &
+export type WizardStore = WizardStoreState &
   WizardStoreActions &
   WizardStoreViews;
 

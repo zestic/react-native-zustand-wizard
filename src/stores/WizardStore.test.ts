@@ -25,7 +25,7 @@ describe('WizardStore (Zustand)', () => {
   describe('initialization', () => {
     it('should create a store with default values', () => {
       const store = createTestStore();
-      
+
       act(() => {
         store.current.initializeSteps(defaultSteps);
       });
@@ -106,15 +106,15 @@ describe('WizardStore (Zustand)', () => {
 
     it('should check if can move next', () => {
       expect(store.current.canMoveNext).toBe(true);
-      
+
       // Update step to not allow moving next
       act(() => {
-        const updatedSteps = store.current.steps.map(step => 
+        const updatedSteps = store.current.steps.map((step) =>
           step.id === 'step1' ? { ...step, canMoveNext: false } : step
         );
         store.current.initializeSteps(updatedSteps);
       });
-      
+
       expect(store.current.canMoveNext).toBe(false);
     });
 
@@ -168,7 +168,7 @@ describe('WizardStore (Zustand)', () => {
         store.current.setLoading(true);
       });
       expect(store.current.isLoading).toBe(true);
-      
+
       act(() => {
         store.current.setLoading(false);
       });
@@ -180,7 +180,7 @@ describe('WizardStore (Zustand)', () => {
         store.current.setError('Test error');
       });
       expect(store.current.error).toBe('Test error');
-      
+
       act(() => {
         store.current.setError(null);
       });
@@ -248,7 +248,9 @@ describe('WizardStore (Zustand)', () => {
       await act(async () => {
         await store.current.setStepData('invalid-step', { name: 'test' });
       });
-      expect(consoleSpy).toHaveBeenCalledWith('Step with id invalid-step not found');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Step with id invalid-step not found'
+      );
       consoleSpy.mockRestore();
     });
   });
@@ -256,7 +258,7 @@ describe('WizardStore (Zustand)', () => {
   describe('step initialization with custom labels', () => {
     it('should initialize steps with custom labels', () => {
       const store = createTestStore();
-      
+
       act(() => {
         store.current.initializeSteps(
           defaultSteps,
@@ -268,7 +270,7 @@ describe('WizardStore (Zustand)', () => {
 
       expect(store.current.nextButtonLabel).toBe('Continue');
       expect(store.current.previousButtonLabel).toBe('Go Back');
-      
+
       // Move to last step to check finish label
       act(() => {
         store.current.moveNext();

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { WizardProps } from '../types';
+import { WizardProps, WizardNavigationProps } from '../types';
 import { WizardNavigation } from './navigation/WizardNavigation';
 import { WizardProvider, useWizard } from '../context/WizardContext';
 import { colors } from '../theme/colors';
@@ -62,8 +62,8 @@ export const Wizard: React.FC<WizardProps> = ({
 // Component that has access to both the store and component registry
 const WizardContentWithRegistry: React.FC<{
   componentRegistry: Map<string, React.ComponentType<Record<string, unknown>>>;
-  renderLoading?: () => React.ReactElement;
-  renderNavigation?: () => React.ComponentType;
+  renderLoading?: (() => React.ReactNode) | undefined;
+  renderNavigation?: React.ComponentType<WizardNavigationProps> | undefined;
 }> = ({ componentRegistry, renderLoading, renderNavigation }) => {
   const store = useWizard();
 
@@ -92,7 +92,7 @@ const WizardContentWithRegistry: React.FC<{
       {CurrentStepComponent && <CurrentStepComponent store={store} />}
 
       {renderNavigation ? (
-        React.createElement(renderNavigation())
+        React.createElement(renderNavigation)
       ) : (
         <WizardNavigation />
       )}

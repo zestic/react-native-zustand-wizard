@@ -1,7 +1,8 @@
 {
-  "name": "react-native-zustand-wizard",
+  "name": "@zestic/react-native-zustand-wizard",
   "version": "0.1.0",
   "description": "A React Native wizard component powered by Zustand",
+  "main": "lib/module/index.js",
   "module": "lib/module/index.js",
   "types": "lib/typescript/index.d.ts",
   "react-native": "src/index.ts",

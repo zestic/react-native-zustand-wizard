@@ -36,11 +36,11 @@ describe('Wizard', () => {
   it('should throw error when no steps provided', () => {
     // Mock console.error to avoid noise in test output
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    
+
     expect(() => {
       render(<Wizard steps={[]} />);
     }).toThrow('Wizard must have at least one step');
-    
+
     consoleSpy.mockRestore();
   });
 
@@ -63,9 +63,9 @@ describe('Wizard', () => {
           finishLabel="Complete"
         />
       );
-      expect(component.props.nextLabel).toBe("Continue");
-      expect(component.props.previousLabel).toBe("Go Back");
-      expect(component.props.finishLabel).toBe("Complete");
+      expect(component.props.nextLabel).toBe('Continue');
+      expect(component.props.previousLabel).toBe('Go Back');
+      expect(component.props.finishLabel).toBe('Complete');
     }).not.toThrow();
   });
 
