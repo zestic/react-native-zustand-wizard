@@ -1,186 +1,67 @@
-import { useMemo } from 'react';
-import { autorun } from 'mobx';
-import { useSyncExternalStore } from 'react';
-import { WizardStoreType } from '../stores/WizardStore';
-import { NavigationContext, StepContext } from 'types';
-
-class WizardStoreError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'WizardStoreError';
-  }
-}
-
-let wizardStore: WizardStoreType | null = null;
+import { useWizard } from '../context/WizardContext';
+import { NavigationContext, StepContext } from '../types';
 
 /**
- * Reset the store to null (for testing only)
- * @internal
+ * Custom hook that provides step context for Zustand store
+ * @param stepId The ID of the step
+ * @returns A step context object with the step ID and helper functions
  */
-export function resetStore(): void {
-  wizardStore = null;
-}
+export const useStepContext = (stepId: string): StepContext => {
+  const store = useWizard();
+
+  return {
+    stepId,
+    updateField: (field: string, value: unknown) => {
+      store.updateField(stepId, field, value);
+    },
+    getStepData: () => {
+      return store.getStepData(stepId);
+    },
+    canMoveNext: (canMoveNext: boolean) => {
+      // Update the step's canMoveNext property using the new method
+      store.updateStepProperty(stepId, 'canMoveNext', canMoveNext);
+    },
+  };
+};
 
 /**
- * Initialize the wizard store reference
- * @param store The wizard store instance
- * @throws {WizardStoreError} When store is null
+ * Custom hook that provides navigation context for Zustand store
+ * @returns Navigation context with state and actions
  */
-export function setWizardUtilsStore(store: WizardStoreType): void {
-  if (!store) {
-    throw new WizardStoreError('Cannot initialize with null store');
-  }
-  wizardStore = store;
+export function useNavigationContext(): NavigationContext {
+  const store = useWizard();
+
+  return {
+    isPreviousHidden: store.isFirstStep,
+    isNextDisabled: !store.canMoveNext,
+    nextLabel: store.nextButtonLabel,
+    previousLabel: store.previousButtonLabel,
+    currentStepPosition: store.currentStepPosition,
+    totalSteps: store.totalSteps,
+    onNext: async () => {
+      await store.moveNext();
+    },
+    onPrevious: async () => {
+      await store.moveBack();
+    },
+  };
 }
 
 /**
- * Update a field in the wizard store
+ * Update a field in the wizard store (Zustand version)
  * @param stepId The ID of the step to update
  * @param field The field name to update
  * @param value The new value for the field
  */
 export const updateField = (
-  stepId: string,
-  field: string,
-  value: unknown
+  _stepId: string,
+  _field: string,
+  _value: unknown
 ): void => {
-  if (!wizardStore) {
-    throw new WizardStoreError('Store not initialized');
-  }
-
-  wizardStore.updateField(stepId, field, value);
+  // This function is meant to be used outside of React components
+  // For Zustand, we'll need to access the store differently
+  // We'll need to modify this approach or use the store directly
+  throw new Error(
+    'updateField should be used within components via useStepContext'
+  );
 };
-
-/**
- * Custom hook that provides step context
- * @param stepId The ID of the step
- * @returns A step context object with the step ID and helper functions
- */
-export const useStepContext = (stepId: string): StepContext => {
-  // Subscribe to changes in the wizardStore
-  const subscribe = (callback: () => void) => {
-    if (!wizardStore) return () => {};
-    const store = wizardStore;
-    const disposer = autorun(() => {
-      // Track essential values and trigger callback when they change
-      const _stepData = store.getStepData(stepId);
-      // eslint-disable-next-line no-void
-      void _stepData;
-      callback();
-    });
-    return disposer;
-  };
-
-  // Memoize the step data
-  const stepData = useMemo(() => {
-    if (!wizardStore) {
-      return {};
-    }
-    return wizardStore.getStepData(stepId) || {};
-  }, [stepId]);
-
-  // Get the current step data
-  const getSnapshot = () => stepData;
-
-  // Use useSyncExternalStore for reactivity
-  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-
-  // Return the step context with safe access to store methods
-  return {
-    stepId,
-    updateField: (field: string, value: unknown) => {
-      if (!wizardStore) {
-        throw new WizardStoreError('Store not initialized');
-      }
-      wizardStore.updateField(stepId, field, value);
-    },
-    getStepData: () => {
-      if (!wizardStore) {
-        throw new WizardStoreError('Store not initialized');
-      }
-      return wizardStore.getStepData(stepId);
-    },
-    canMoveNext: (canMoveNext: boolean) => {
-      if (!wizardStore) {
-        throw new WizardStoreError('Store not initialized');
-      }
-      const currentStep = wizardStore.getStepById(stepId);
-      if (currentStep) {
-        currentStep.setCanMoveNext(canMoveNext);
-      }
-    },
-  };
-};
-
-export function useNavigationContext(): NavigationContext {
-  // Subscribe to changes in the wizardStore
-  const subscribe = (callback: () => void) => {
-    if (!wizardStore) return () => {};
-    const store = wizardStore;
-    const disposer = autorun(() => {
-      // Track essential values and trigger callback when they change
-      const _currentStepPosition = store.currentStepPosition;
-      const _canMoveNext = store.canMoveNext;
-      const _nextLabel = store.nextButtonLabel;
-      const _previousLabel = store.previousButtonLabel;
-      const _totalSteps = store.totalSteps;
-      // eslint-disable-next-line no-void
-      void _currentStepPosition;
-      // eslint-disable-next-line no-void
-      void _canMoveNext;
-      // eslint-disable-next-line no-void
-      void _nextLabel;
-      // eslint-disable-next-line no-void
-      void _previousLabel;
-      // eslint-disable-next-line no-void
-      void _totalSteps;
-      callback();
-    });
-    return disposer;
-  };
-
-  // Memoize the navigation config
-  const navigationConfig = useMemo(() => {
-    if (!wizardStore) {
-      return {
-        isPreviousHidden: false,
-        isNextDisabled: true,
-        nextLabel: '',
-        previousLabel: '',
-        currentStepPosition: 0,
-        totalSteps: 0,
-      };
-    }
-
-    return {
-      currentStepPosition: wizardStore.currentStepPosition,
-      isNextDisabled: !wizardStore.canMoveNext,
-      isPreviousHidden: wizardStore.isFirstStep,
-      nextLabel: wizardStore.nextButtonLabel,
-      previousLabel: wizardStore.previousButtonLabel,
-      totalSteps: wizardStore.totalSteps,
-    };
-  }, []);
-
-  const getSnapshot = () => navigationConfig;
-
-  // Use useSyncExternalStore to handle updates
-  useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-
-  return {
-    isPreviousHidden: wizardStore?.isFirstStep ?? false,
-    isNextDisabled: !(wizardStore?.canMoveNext ?? true),
-    nextLabel: wizardStore?.nextButtonLabel ?? '',
-    previousLabel: wizardStore?.previousButtonLabel ?? '',
-    currentStepPosition: wizardStore?.currentStepPosition ?? 0,
-    totalSteps: wizardStore?.totalSteps ?? 0,
-    onNext: async () => {
-      if (!wizardStore) return;
-      await wizardStore.moveNext();
-    },
-    onPrevious: async () => {
-      if (!wizardStore) return;
-      await wizardStore.moveBack();
-    },
-  };
-}

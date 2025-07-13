@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text, Alert } from 'react-native';
-import { Wizard } from '../src/components/Wizard';
+import { Wizard } from '../src';
 import { PersonalInfoStep } from './components/steps/PersonalInfoStep';
 import { ContactInfoStep } from './components/steps/ContactInfoStep';
 import { SecurityStep } from './components/steps/SecurityStep';

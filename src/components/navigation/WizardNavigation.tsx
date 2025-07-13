@@ -1,9 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { observer } from 'mobx-react';
 import { useNavigationContext } from '../../utils/wizardUtils';
 import { colors } from '../../theme/colors';
-import { WizardNavigationProps } from 'types';
+import { WizardNavigationProps } from '../../types';
 
 // Default button component with proper disabled styling
 const DefaultButton = ({
@@ -30,67 +29,38 @@ const DefaultButton = ({
   </TouchableOpacity>
 );
 
-export const WizardNavigation = observer(
-  ({
-    ButtonComponent = DefaultButton,
-    StepIndicatorComponent,
-    indicatorPosition = 'between',
-  }: WizardNavigationProps) => {
-    const {
-      isPreviousHidden,
-      isNextDisabled,
-      nextLabel,
-      previousLabel,
-      onNext,
-      onPrevious,
-      currentStepPosition,
-      totalSteps,
-    } = useNavigationContext();
+export const WizardNavigation: React.FC<WizardNavigationProps> = ({
+  ButtonComponent = DefaultButton,
+  StepIndicatorComponent,
+  indicatorPosition = 'between',
+}) => {
+  const {
+    isPreviousHidden,
+    isNextDisabled,
+    nextLabel,
+    previousLabel,
+    onNext,
+    onPrevious,
+    currentStepPosition,
+    totalSteps,
+  } = useNavigationContext();
 
-    const renderIndicator = () =>
-      StepIndicatorComponent && (
-        <View
-          accessibilityRole="text"
-          accessibilityLabel={`Step ${currentStepPosition} of ${totalSteps}`}
-        >
-          <StepIndicatorComponent />
-        </View>
-      );
+  const renderIndicator = () =>
+    StepIndicatorComponent && (
+      <View
+        accessibilityRole="text"
+        accessibilityLabel={`Step ${currentStepPosition} of ${totalSteps}`}
+      >
+        <StepIndicatorComponent />
+      </View>
+    );
 
-    // For 'between', render: [Prev Button] [StepIndicator] [Next Button]
-    if (indicatorPosition === 'between' && StepIndicatorComponent) {
-      return (
-        <View style={styles.container} accessible={true}>
-          <View style={styles.rowBetween}>
-            <View style={styles.buttonWrapper}>
-              {!isPreviousHidden && (
-                <ButtonComponent
-                  onPress={onPrevious}
-                  title={previousLabel || ''}
-                  disabled={false}
-                />
-              )}
-            </View>
-            <View style={styles.indicatorWrapper}>{renderIndicator()}</View>
-            <View style={styles.buttonWrapper}>
-              <ButtonComponent
-                onPress={onNext}
-                title={nextLabel || ''}
-                disabled={isNextDisabled}
-              />
-            </View>
-          </View>
-        </View>
-      );
-    }
-
-    // For above/below or no indicator, render buttons in a row
+  // For 'between', render: [Prev Button] [StepIndicator] [Next Button]
+  if (indicatorPosition === 'between' && StepIndicatorComponent) {
     return (
       <View style={styles.container} accessible={true}>
-        {indicatorPosition === 'above' && renderIndicator()}
-        <View style={styles.rowButtons}>
-          {/* Left side - Previous button or empty space */}
-          <View style={styles.buttonLeft}>
+        <View style={styles.rowBetween}>
+          <View style={styles.buttonWrapper}>
             {!isPreviousHidden && (
               <ButtonComponent
                 onPress={onPrevious}
@@ -99,8 +69,8 @@ export const WizardNavigation = observer(
               />
             )}
           </View>
-          {/* Right side - Next button */}
-          <View style={styles.buttonRight}>
+          <View style={styles.indicatorWrapper}>{renderIndicator()}</View>
+          <View style={styles.buttonWrapper}>
             <ButtonComponent
               onPress={onNext}
               title={nextLabel || ''}
@@ -108,11 +78,38 @@ export const WizardNavigation = observer(
             />
           </View>
         </View>
-        {indicatorPosition === 'below' && renderIndicator()}
       </View>
     );
   }
-);
+
+  // For above/below or no indicator, render buttons in a row
+  return (
+    <View style={styles.container} accessible={true}>
+      {indicatorPosition === 'above' && renderIndicator()}
+      <View style={styles.rowButtons}>
+        {/* Left side - Previous button or empty space */}
+        <View style={styles.buttonLeft}>
+          {!isPreviousHidden && (
+            <ButtonComponent
+              onPress={onPrevious}
+              title={previousLabel || ''}
+              disabled={false}
+            />
+          )}
+        </View>
+        {/* Right side - Next button */}
+        <View style={styles.buttonRight}>
+          <ButtonComponent
+            onPress={onNext}
+            title={nextLabel || ''}
+            disabled={isNextDisabled}
+          />
+        </View>
+      </View>
+      {indicatorPosition === 'below' && renderIndicator()}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   button: {

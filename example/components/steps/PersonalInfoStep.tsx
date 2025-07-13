@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react-lite';
-import { useStepContext } from '../../../src/utils/wizardUtils';
+import { useStepContext } from '../../../src/utils';
 import { colors } from '../../../src/theme/colors';
 
 interface PersonalInfoData {

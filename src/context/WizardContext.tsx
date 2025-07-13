@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
-import { useWizardStore, WizardStore, Step } from '../stores/WizardStore.zustand';
+import { useWizardStore, WizardStore, Step } from '../stores/WizardStore';
 
 interface WizardContextType {
   store: WizardStore;
@@ -29,7 +29,7 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     if (steps && steps.length > 0) {
       store.initializeSteps(steps, nextLabel, previousLabel, finishLabel);
     }
-  }, [steps, nextLabel, previousLabel, finishLabel]); // Remove store from dependencies
+  }, [store, steps, nextLabel, previousLabel, finishLabel]);
 
   const contextValue: WizardContextType = {
     store,
