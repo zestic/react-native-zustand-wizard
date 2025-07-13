@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 9,
+            "activePatchIndex": 13,
             "patches": [
                 {
                     "date": 1752380104034,
@@ -44,6 +44,22 @@
                 {
                     "date": 1752380338874,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -300,9 +300,8 @@\n             .sort((a, b) => b.order - a.order)[0];\n         },\n       };\n     },\n-    }),\n     {\n       name: 'wizard-store',\n     }\n   )\n"
+                },
+                {
+                    "date": 1752383356446,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -31,8 +31,9 @@\n   moveNext: () => Promise<void>;\n   moveBack: () => Promise<void>;\n   setStepData: (stepId: string, data: StepData) => Promise<void>;\n   updateField: (stepId: string, field: string, value: unknown) => Promise<void>;\n+  updateStepProperty: (stepId: string, property: keyof Step, value: unknown) => void;\n   reset: () => Promise<void>;\n   initializeSteps: (steps: Omit<Step, 'nextLabel' | 'previousLabel'>[], defaultNextLabel?: string, defaultPreviousLabel?: string, finishLabel?: string) => void;\n }\n \n"
+                },
+                {
+                    "date": 1752383375086,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -188,8 +188,21 @@\n           newStepData.set(stepId, newData);\n           set(updateStateWithDerived({ stepData: newStepData }), false, 'updateField');\n         },\n \n+        updateStepProperty: (stepId: string, property: keyof Step, value: unknown) => {\n+          const state = get();\n+          const stepIndex = state.steps.findIndex(s => s.id === stepId);\n+          if (stepIndex !== -1) {\n+            const updatedSteps = [...state.steps];\n+            updatedSteps[stepIndex] = {\n+              ...updatedSteps[stepIndex],\n+              [property]: value\n+            } as Step;\n+            set(updateStateWithDerived({ steps: updatedSteps }), false, 'updateStepProperty');\n+          }\n+        },\n+\n         reset: async () => {\n           const state = get();\n           const firstStep = [...state.steps]\n             .sort((a, b) => a.order - b.order)[0];\n"
+                },
+                {
+                    "date": 1752383602797,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -73,14 +73,15 @@\n   }\n };\n \n // Helper function to compute derived state\n-const computeDerivedState = (state: WizardState) => {\n-  const currentStep = state.steps.find((s) => s.order === state.currentStepPosition);\n+const computeDerivedState = (state: Partial<WizardState>, currentState?: WizardState) => {\n+  const fullState = { ...currentState, ...state } as WizardState;\n+  const currentStep = fullState.steps.find((s) => s.order === fullState.currentStepPosition);\n   return {\n     canMoveNext: currentStep ? currentStep.canMoveNext : false,\n-    isFirstStep: state.currentStepPosition === 1,\n-    isLastStep: state.currentStepPosition === state.totalSteps,\n+    isFirstStep: fullState.currentStepPosition === 1,\n+    isLastStep: fullState.currentStepPosition === fullState.totalSteps,\n     nextButtonLabel: currentStep?.nextLabel || 'Next',\n     previousButtonLabel: currentStep?.previousLabel || 'Previous',\n   };\n };\n"
+                },
+                {
+                    "date": 1752383617488,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -91,11 +91,10 @@\n   devtools(\n     (set, get) => {\n       const updateStateWithDerived = (newState: Partial<WizardState>) => {\n         const currentState = get();\n-        const updatedState = { ...currentState, ...newState };\n-        const derived = computeDerivedState(updatedState);\n-        return { ...updatedState, ...derived };\n+        const derived = computeDerivedState(newState, currentState);\n+        return { ...currentState, ...newState, ...derived };\n       };\n \n       return {\n         // Initial state\n"
                 }
             ],
             "date": 1752380104034,

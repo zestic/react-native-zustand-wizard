@@ -32,6 +32,7 @@ export interface WizardActions {
   moveBack: () => Promise<void>;
   setStepData: (stepId: string, data: StepData) => Promise<void>;
   updateField: (stepId: string, field: string, value: unknown) => Promise<void>;
+  updateStepProperty: (stepId: string, property: keyof Step, value: unknown) => void;
   reset: () => Promise<void>;
   initializeSteps: (steps: Omit<Step, 'nextLabel' | 'previousLabel'>[], defaultNextLabel?: string, defaultPreviousLabel?: string, finishLabel?: string) => void;
 }
@@ -73,12 +74,13 @@ const validateSteps = (steps: Step[]): void => {
 };
 
 // Helper function to compute derived state
-const computeDerivedState = (state: WizardState) => {
-  const currentStep = state.steps.find((s) => s.order === state.currentStepPosition);
+const computeDerivedState = (state: Partial<WizardState>, currentState?: WizardState) => {
+  const fullState = { ...currentState, ...state } as WizardState;
+  const currentStep = fullState.steps.find((s) => s.order === fullState.currentStepPosition);
   return {
     canMoveNext: currentStep ? currentStep.canMoveNext : false,
-    isFirstStep: state.currentStepPosition === 1,
-    isLastStep: state.currentStepPosition === state.totalSteps,
+    isFirstStep: fullState.currentStepPosition === 1,
+    isLastStep: fullState.currentStepPosition === fullState.totalSteps,
     nextButtonLabel: currentStep?.nextLabel || 'Next',
     previousButtonLabel: currentStep?.previousLabel || 'Previous',
   };
@@ -90,9 +92,8 @@ export const useWizardStore = create<WizardStore>()(
     (set, get) => {
       const updateStateWithDerived = (newState: Partial<WizardState>) => {
         const currentState = get();
-        const updatedState = { ...currentState, ...newState };
-        const derived = computeDerivedState(updatedState);
-        return { ...updatedState, ...derived };
+        const derived = computeDerivedState(newState, currentState);
+        return { ...currentState, ...newState, ...derived };
       };
 
       return {
@@ -186,6 +187,19 @@ export const useWizardStore = create<WizardStore>()(
           const newStepData = new Map(state.stepData);
           newStepData.set(stepId, newData);
           set(updateStateWithDerived({ stepData: newStepData }), false, 'updateField');
+        },
+
+        updateStepProperty: (stepId: string, property: keyof Step, value: unknown) => {
+          const state = get();
+          const stepIndex = state.steps.findIndex(s => s.id === stepId);
+          if (stepIndex !== -1) {
+            const updatedSteps = [...state.steps];
+            updatedSteps[stepIndex] = {
+              ...updatedSteps[stepIndex],
+              [property]: value
+            } as Step;
+            set(updateStateWithDerived({ steps: updatedSteps }), false, 'updateStepProperty');
+          }
         },
 
         reset: async () => {

@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/context/WizardContext.tsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752383634953,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752383634953,
+            "name": "Commit-0",
+            "content": "import React, { createContext, useContext, useEffect, ReactNode } from 'react';\nimport { useWizardStore, WizardStore, Step } from '../stores/WizardStore.zustand';\n\ninterface WizardContextType {\n  store: WizardStore;\n}\n\nconst WizardContext = createContext<WizardContextType | null>(null);\n\ninterface WizardProviderProps {\n  children: ReactNode;\n  steps: Omit<Step, 'nextLabel' | 'previousLabel'>[];\n  nextLabel?: string;\n  previousLabel?: string;\n  finishLabel?: string;\n}\n\nexport const WizardProvider: React.FC<WizardProviderProps> = ({\n  children,\n  steps,\n  nextLabel = 'Next',\n  previousLabel = 'Previous',\n  finishLabel = 'Finish',\n}) => {\n  const store = useWizardStore();\n\n  // Initialize the store when steps change\n  useEffect(() => {\n    if (steps && steps.length > 0) {\n      store.initializeSteps(steps, nextLabel, previousLabel, finishLabel);\n    }\n  }, [steps, nextLabel, previousLabel, finishLabel]); // Remove store from dependencies\n\n  const contextValue: WizardContextType = {\n    store,\n  };\n\n  return (\n    <WizardContext.Provider value={contextValue}>\n      {children}\n    </WizardContext.Provider>\n  );\n};\n\nexport const useWizardContext = (): WizardContextType => {\n  const context = useContext(WizardContext);\n  if (!context) {\n    throw new Error('useWizardContext must be used within a WizardProvider');\n  }\n  return context;\n};\n\n// Hook to get the store directly (for convenience)\nexport const useWizard = (): WizardStore => {\n  const { store } = useWizardContext();\n  return store;\n};\n"
+        }
+    ]
+}
