@@ -1,10 +1,10 @@
-# MST Wizard Example
+# React Native Zustand Wizard Example
 
-This example demonstrates how to use the MST Wizard library to create a multi-step registration form with MobX-State-Tree for state management.
+This example demonstrates how to use the React Native Zustand Wizard library to create a multi-step registration form with Zustand for state management.
 
 ## Features
 
-- Type-safe state management with MobX-State-Tree
+- Type-safe state management with Zustand
 - Reactive UI updates
 - Step validation
 - Error handling
