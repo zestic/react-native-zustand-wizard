@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/utils/wizardUtils.unit.test.ts",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752381697868,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752381697868,
+            "name": "Commit-0",
+            "content": "import { useNavigationContext } from './wizardUtils';\nimport { renderHook } from '@testing-library/react-native';\n\n// Mock the entire wizardUtils module\njest.mock('./wizardUtils', () => {\n  const actual = jest.requireActual('./wizardUtils');\n  return {\n    ...actual,\n    useNavigationContext: jest.fn(),\n  };\n});\n\ndescribe('wizardUtils Navigation Tests', () => {\n  const mockNav = require('./wizardUtils').useNavigationContext as jest.Mock;\n  let consoleWarnSpy: jest.SpyInstance;\n\n  beforeEach(() => {\n    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});\n    jest.clearAllMocks();\n  });\n\n  afterEach(() => {\n    consoleWarnSpy.mockRestore();\n  });\n\n  describe('useNavigationContext', () => {\n    it('should provide safe defaults when store is not initialized', () => {\n      mockNav.mockReturnValueOnce({\n        isPreviousHidden: true,\n        isNextDisabled: false,\n        nextLabel: '',\n        previousLabel: '',\n        currentStepPosition: 0,\n        totalSteps: 0,\n        onNext: expect.any(Function),\n        onPrevious: expect.any(Function),\n      });\n\n      const { result } = renderHook(() => useNavigationContext());\n\n      expect(result.current).toEqual({\n        isPreviousHidden: true,\n        isNextDisabled: false,\n        nextLabel: '',\n        previousLabel: '',\n        currentStepPosition: 0,\n        totalSteps: 0,\n        onNext: expect.any(Function),\n        onPrevious: expect.any(Function),\n      });\n    });\n  });\n});\n"
+        }
+    ]
+}

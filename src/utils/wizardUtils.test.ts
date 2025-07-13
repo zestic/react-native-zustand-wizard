@@ -5,7 +5,7 @@ import {
   resetStore,
 } from './wizardUtils';
 import { WizardStore } from '../stores/WizardStore';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 
 // Mock the WizardStore with basic functionality
 const mockWizardStore = {

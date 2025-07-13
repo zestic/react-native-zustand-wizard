@@ -1,5 +1,5 @@
 import { useNavigationContext } from './wizardUtils';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-native';
 
 // Mock the entire wizardUtils module
 jest.mock('./wizardUtils', () => {

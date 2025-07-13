@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { WizardStore } from '../stores/WizardStore';
 import { setWizardUtilsStore, useNavigationContext } from './wizardUtils';
 

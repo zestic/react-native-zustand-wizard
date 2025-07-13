@@ -3,7 +3,7 @@ import {
   useNavigationContext,
   useStepContext,
 } from './wizardUtils';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 
 describe('wizardUtils Integration Tests', () => {
   let consoleWarnSpy: jest.SpyInstance;

@@ -225,5 +225,14 @@ describe('WizardStore', () => {
       expect(store.isLoading).toBe(false);
       expect(store.error).toBe('');
     });
+
+    it('should handle setStepData with invalid step id', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      await store.setStepData('invalid-step', { name: 'test' });
+      expect(consoleSpy).toHaveBeenCalledWith('Step with id invalid-step not found');
+      consoleSpy.mockRestore();
+    });
+
+
   });
 });
