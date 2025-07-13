@@ -1,6 +1,6 @@
 {
   "name": "@zestic/react-native-zustand-wizard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A React Native wizard component powered by Zustand",
   "main": "lib/module/index.js",
   "module": "lib/module/index.js",
@@ -48,7 +48,7 @@
     "storybook:android": "npx expo start --android",
     "storybook:web": "npx expo start --web"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "peerDependencies": {
     "react": ">=19.0.0",
     "react-native": ">=0.79.0",
