@@ -2,7 +2,7 @@
 
 A modern React Native wizard component powered by Zustand for building complex, multi-step flows with lightweight, efficient state management.
 
-[![codecov](https://codecov.io/gh/xaddax/react-native-mst-wizard/branch/main/graph/badge.svg?token=U5KXG146YC)](https://codecov.io/gh/xaddax/react-native-mst-wizard)
+[![codecov](https://codecov.io/gh/zestic/react-native-zustand-wizard/branch/main/graph/badge.svg?token=U5KXG146YC)](https://codecov.io/gh/zestic/react-native-zustand-wizard)
 
 ## 🎉 Migration to Zustand Complete!
 
