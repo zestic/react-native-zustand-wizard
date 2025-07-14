@@ -63,9 +63,7 @@ const TestComponent = () => {
 const TestWizardHookComponent = () => {
   const store = useWizard();
   return (
-    <Text testID="test-wizard-hook">
-      Position: {store.currentStepPosition}
-    </Text>
+    <Text testID="test-wizard-hook">Position: {store.currentStepPosition}</Text>
   );
 };
 
@@ -252,12 +250,16 @@ describe('WizardContext', () => {
       render(<TestComponentOutsideProvider />);
 
       expect(screen.getByTestId('error-caught')).toBeTruthy();
-      expect(screen.getByText('useWizardContext must be used within a WizardProvider')).toBeTruthy();
+      expect(
+        screen.getByText(
+          'useWizardContext must be used within a WizardProvider'
+        )
+      ).toBeTruthy();
     });
 
     it('should provide store instance', () => {
       let contextValue: any;
-      
+
       const TestContextValue = () => {
         contextValue = useWizardContext();
         return <Text testID="context-test">Test</Text>;
@@ -300,12 +302,16 @@ describe('WizardContext', () => {
       render(<TestWizardHookOutsideProvider />);
 
       expect(screen.getByTestId('error-caught')).toBeTruthy();
-      expect(screen.getByText('useWizardContext must be used within a WizardProvider')).toBeTruthy();
+      expect(
+        screen.getByText(
+          'useWizardContext must be used within a WizardProvider'
+        )
+      ).toBeTruthy();
     });
 
     it('should provide access to all store methods', () => {
       let store: any;
-      
+
       const TestStoreAccess = () => {
         store = useWizard();
         return <Text testID="store-test">Test</Text>;

@@ -1,6 +1,10 @@
 import { renderHook, act } from '@testing-library/react-native';
 import React from 'react';
-import { useStepContext, useNavigationContext, updateField } from './wizardUtils';
+import {
+  useStepContext,
+  useNavigationContext,
+  updateField,
+} from './wizardUtils';
 import { useWizard } from '../context/WizardContext';
 
 // Mock the WizardContext
@@ -73,7 +77,11 @@ describe('wizardUtils', () => {
         result.current.updateField('name', 'John Doe');
       });
 
-      expect(mockStore.updateField).toHaveBeenCalledWith('test-step', 'name', 'John Doe');
+      expect(mockStore.updateField).toHaveBeenCalledWith(
+        'test-step',
+        'name',
+        'John Doe'
+      );
     });
 
     it('should provide getStepData function', () => {
@@ -116,7 +124,11 @@ describe('wizardUtils', () => {
         result.current.canMoveNext(true);
       });
 
-      expect(mockStore.updateStepProperty).toHaveBeenCalledWith('test-step', 'canMoveNext', true);
+      expect(mockStore.updateStepProperty).toHaveBeenCalledWith(
+        'test-step',
+        'canMoveNext',
+        true
+      );
     });
 
     it('should handle different step IDs', () => {
@@ -134,8 +146,16 @@ describe('wizardUtils', () => {
         result2.current.updateField('field2', 'value2');
       });
 
-      expect(mockStore.updateField).toHaveBeenCalledWith('step1', 'field1', 'value1');
-      expect(mockStore.updateField).toHaveBeenCalledWith('step2', 'field2', 'value2');
+      expect(mockStore.updateField).toHaveBeenCalledWith(
+        'step1',
+        'field1',
+        'value1'
+      );
+      expect(mockStore.updateField).toHaveBeenCalledWith(
+        'step2',
+        'field2',
+        'value2'
+      );
     });
 
     it('should handle empty step ID', () => {
@@ -289,31 +309,43 @@ describe('wizardUtils', () => {
     it('should throw error when called', () => {
       expect(() => {
         updateField('step1', 'field', 'value');
-      }).toThrow('updateField should be used within components via useStepContext');
+      }).toThrow(
+        'updateField should be used within components via useStepContext'
+      );
     });
 
     it('should throw error with correct message', () => {
       expect(() => {
         updateField('any-step', 'any-field', 'any-value');
-      }).toThrow('updateField should be used within components via useStepContext');
+      }).toThrow(
+        'updateField should be used within components via useStepContext'
+      );
     });
 
     it('should throw error regardless of parameters', () => {
       expect(() => {
         updateField('', '', '');
-      }).toThrow('updateField should be used within components via useStepContext');
+      }).toThrow(
+        'updateField should be used within components via useStepContext'
+      );
 
       expect(() => {
         updateField('step', 'field', null);
-      }).toThrow('updateField should be used within components via useStepContext');
+      }).toThrow(
+        'updateField should be used within components via useStepContext'
+      );
 
       expect(() => {
         updateField('step', 'field', undefined);
-      }).toThrow('updateField should be used within components via useStepContext');
+      }).toThrow(
+        'updateField should be used within components via useStepContext'
+      );
 
       expect(() => {
         updateField('step', 'field', { complex: 'object' });
-      }).toThrow('updateField should be used within components via useStepContext');
+      }).toThrow(
+        'updateField should be used within components via useStepContext'
+      );
     });
   });
 
@@ -322,7 +354,9 @@ describe('wizardUtils', () => {
       const mockStore = createMockStore();
       mockUseWizard.mockReturnValue(mockStore);
 
-      const { result: stepResult } = renderHook(() => useStepContext('test-step'));
+      const { result: stepResult } = renderHook(() =>
+        useStepContext('test-step')
+      );
       const { result: navResult } = renderHook(() => useNavigationContext());
 
       expect(stepResult.current.stepId).toBe('test-step');
@@ -342,8 +376,16 @@ describe('wizardUtils', () => {
         step2.current.updateField('email', 'john@example.com');
       });
 
-      expect(mockStore.updateField).toHaveBeenCalledWith('step1', 'name', 'John');
-      expect(mockStore.updateField).toHaveBeenCalledWith('step2', 'email', 'john@example.com');
+      expect(mockStore.updateField).toHaveBeenCalledWith(
+        'step1',
+        'name',
+        'John'
+      );
+      expect(mockStore.updateField).toHaveBeenCalledWith(
+        'step2',
+        'email',
+        'john@example.com'
+      );
     });
   });
 });

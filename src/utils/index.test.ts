@@ -22,7 +22,9 @@ describe('utils/index.ts', () => {
 
     it('should re-export functions from wizardUtils', () => {
       expect(utilsIndex.useStepContext).toBe(wizardUtils.useStepContext);
-      expect(utilsIndex.useNavigationContext).toBe(wizardUtils.useNavigationContext);
+      expect(utilsIndex.useNavigationContext).toBe(
+        wizardUtils.useNavigationContext
+      );
     });
   });
 
@@ -70,7 +72,7 @@ describe('utils/index.ts', () => {
     it('should re-export types from types module', () => {
       // Verify that the types are the same as those from the types module
       // This is more of a structural test since TypeScript types don't exist at runtime
-      
+
       // Test NavigationContext structure
       const navContext: utilsIndex.NavigationContext = {
         isPreviousHidden: true,
@@ -100,8 +102,8 @@ describe('utils/index.ts', () => {
     it('should export exactly the expected items', () => {
       const exportedKeys = Object.keys(utilsIndex);
       const expectedExports = ['useStepContext', 'useNavigationContext'];
-      
-      expectedExports.forEach(exportName => {
+
+      expectedExports.forEach((exportName) => {
         expect(exportedKeys).toContain(exportName);
       });
     });
@@ -109,7 +111,7 @@ describe('utils/index.ts', () => {
     it('should not export unexpected items', () => {
       const exportedKeys = Object.keys(utilsIndex);
       const expectedExports = ['useStepContext', 'useNavigationContext'];
-      
+
       expect(exportedKeys).toHaveLength(expectedExports.length);
     });
 
@@ -149,7 +151,9 @@ describe('utils/index.ts', () => {
         onPrevious: jest.fn(),
       };
 
-      (wizardUtils.useNavigationContext as jest.Mock).mockReturnValue(mockReturn);
+      (wizardUtils.useNavigationContext as jest.Mock).mockReturnValue(
+        mockReturn
+      );
 
       const result = utilsIndex.useNavigationContext();
 
@@ -160,7 +164,9 @@ describe('utils/index.ts', () => {
 
   describe('Type Compatibility', () => {
     it('should allow NavigationContext to be used in function signatures', () => {
-      const processNavigationContext = (context: utilsIndex.NavigationContext): string => {
+      const processNavigationContext = (
+        context: utilsIndex.NavigationContext
+      ): string => {
         return `Step ${context.currentStepPosition} of ${context.totalSteps}`;
       };
 
@@ -216,18 +222,23 @@ describe('utils/index.ts', () => {
     it('should maintain consistent exports with wizardUtils', () => {
       // Verify that all expected exports from wizardUtils are re-exported
       expect(utilsIndex.useStepContext).toBe(wizardUtils.useStepContext);
-      expect(utilsIndex.useNavigationContext).toBe(wizardUtils.useNavigationContext);
+      expect(utilsIndex.useNavigationContext).toBe(
+        wizardUtils.useNavigationContext
+      );
     });
 
     it('should not expose internal implementation details', () => {
       // Verify that only the intended public API is exposed
       const exportedKeys = Object.keys(utilsIndex);
-      
+
       // Should not export things like updateField directly (it's meant to be used via useStepContext)
       expect(exportedKeys).not.toContain('updateField');
-      
+
       // Should only export the public hooks
-      expect(exportedKeys.sort()).toEqual(['useNavigationContext', 'useStepContext']);
+      expect(exportedKeys.sort()).toEqual([
+        'useNavigationContext',
+        'useStepContext',
+      ]);
     });
   });
 
@@ -235,11 +246,11 @@ describe('utils/index.ts', () => {
     it('should serve as a proper barrel export', () => {
       // This test verifies that the index file serves its purpose as a barrel export
       // by providing a clean public API
-      
+
       // All expected utilities should be available
       expect(utilsIndex.useStepContext).toBeDefined();
       expect(utilsIndex.useNavigationContext).toBeDefined();
-      
+
       // Types should be available for import (tested through usage)
       const testNavContext: utilsIndex.NavigationContext = {
         isPreviousHidden: false,
@@ -251,14 +262,14 @@ describe('utils/index.ts', () => {
         onNext: async () => {},
         onPrevious: async () => {},
       };
-      
+
       const testStepContext: utilsIndex.StepContext = {
         stepId: 'test',
         updateField: () => {},
         getStepData: () => ({}),
         canMoveNext: () => {},
       };
-      
+
       expect(testNavContext).toBeDefined();
       expect(testStepContext).toBeDefined();
     });
@@ -277,7 +288,9 @@ describe('utils/index.ts', () => {
     });
 
     it('should handle undefined returns gracefully', () => {
-      (wizardUtils.useNavigationContext as jest.Mock).mockReturnValue(undefined);
+      (wizardUtils.useNavigationContext as jest.Mock).mockReturnValue(
+        undefined
+      );
 
       const result = utilsIndex.useNavigationContext();
       expect(result).toBeUndefined();

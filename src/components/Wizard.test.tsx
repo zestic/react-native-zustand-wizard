@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react-native';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Wizard } from './Wizard';
 import { Step, WizardNavigationProps } from '../types';
@@ -9,7 +14,12 @@ jest.mock('./navigation/WizardNavigation', () => {
   const mockReact = require('react');
   const { Text } = require('react-native');
   return {
-    WizardNavigation: () => mockReact.createElement(Text, { testID: 'wizard-navigation' }, 'Navigation'),
+    WizardNavigation: () =>
+      mockReact.createElement(
+        Text,
+        { testID: 'wizard-navigation' },
+        'Navigation'
+      ),
   };
 });
 
@@ -44,20 +54,27 @@ jest.mock('../context/WizardContext', () => {
   };
 
   return {
-    WizardProvider: ({ children }: any) => mockReact.createElement('div', {}, children),
+    WizardProvider: ({ children }: any) =>
+      mockReact.createElement('div', {}, children),
     useWizard: () => mockStore,
   };
 });
 
 // Mock components for testing
 const Step1Component = ({ store }: any) => (
-  <Text testID="step1-content">Step 1 Content - Current: {store?.currentStepId}</Text>
+  <Text testID="step1-content">
+    Step 1 Content - Current: {store?.currentStepId}
+  </Text>
 );
 const Step2Component = ({ store }: any) => (
-  <Text testID="step2-content">Step 2 Content - Current: {store?.currentStepId}</Text>
+  <Text testID="step2-content">
+    Step 2 Content - Current: {store?.currentStepId}
+  </Text>
 );
 const Step3Component = ({ store }: any) => (
-  <Text testID="step3-content">Step 3 Content - Current: {store?.currentStepId}</Text>
+  <Text testID="step3-content">
+    Step 3 Content - Current: {store?.currentStepId}
+  </Text>
 );
 
 const defaultSteps: Step[] = [
@@ -221,10 +238,7 @@ describe('Wizard', () => {
       );
 
       const component = (
-        <Wizard
-          steps={defaultSteps}
-          renderNavigation={CustomNavigation}
-        />
+        <Wizard steps={defaultSteps} renderNavigation={CustomNavigation} />
       );
 
       expect(component.props.renderNavigation).toBe(CustomNavigation);

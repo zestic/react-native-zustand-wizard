@@ -154,7 +154,7 @@ describe('commonStyles', () => {
         'verticalDivider',
       ];
 
-      expectedStyles.forEach(styleName => {
+      expectedStyles.forEach((styleName) => {
         expect(commonStyles).toHaveProperty(styleName);
       });
     });
@@ -230,10 +230,10 @@ describe('commonStyles', () => {
       // Test that related styles have compatible properties
       expect(commonStyles.input.borderWidth).toBe(1);
       expect(commonStyles.inputError.borderColor).toBeDefined();
-      
+
       expect(commonStyles.button.alignItems).toBe('center');
       expect(commonStyles.button.justifyContent).toBe('center');
-      
+
       expect(commonStyles.row.flexDirection).toBe('row');
       expect(commonStyles.rowBetween.flexDirection).toBe('row');
     });
@@ -243,10 +243,12 @@ describe('commonStyles', () => {
     it('should be created with StyleSheet.create', () => {
       // Verify that the styles object has the structure expected from StyleSheet.create
       expect(typeof commonStyles).toBe('object');
-      
+
       // Each style should be a number (StyleSheet ID) or object
-      Object.values(commonStyles).forEach(style => {
-        expect(typeof style === 'object' || typeof style === 'number').toBe(true);
+      Object.values(commonStyles).forEach((style) => {
+        expect(typeof style === 'object' || typeof style === 'number').toBe(
+          true
+        );
       });
     });
 

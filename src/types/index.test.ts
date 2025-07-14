@@ -145,8 +145,8 @@ describe('Type Definitions', () => {
   describe('IndicatorPosition', () => {
     it('should define correct position values', () => {
       const positions: IndicatorPosition[] = ['above', 'between', 'below'];
-      
-      positions.forEach(position => {
+
+      positions.forEach((position) => {
         expect(['above', 'between', 'below']).toContain(position);
       });
     });
@@ -245,11 +245,13 @@ describe('Type Definitions', () => {
   describe('WizardProps', () => {
     it('should define required steps property', () => {
       const minimalProps: WizardProps = {
-        steps: [{
-          id: 'step1',
-          order: 1,
-          component: MockComponent,
-        }],
+        steps: [
+          {
+            id: 'step1',
+            order: 1,
+            component: MockComponent,
+          },
+        ],
       };
 
       expect(Array.isArray(minimalProps.steps)).toBe(true);
@@ -258,11 +260,13 @@ describe('Type Definitions', () => {
 
     it('should allow optional properties', () => {
       const fullProps: WizardProps = {
-        steps: [{
-          id: 'step1',
-          order: 1,
-          component: MockComponent,
-        }],
+        steps: [
+          {
+            id: 'step1',
+            order: 1,
+            component: MockComponent,
+          },
+        ],
         nextLabel: 'Next',
         previousLabel: 'Previous',
         finishLabel: 'Finish',
@@ -390,8 +394,10 @@ describe('Type Definitions', () => {
     });
 
     it('should work with React component types', () => {
-      const TestComponent: React.ComponentType<Record<string, unknown>> = (props) => null;
-      
+      const TestComponent: React.ComponentType<Record<string, unknown>> = (
+        props
+      ) => null;
+
       const step: Step = {
         id: 'test',
         order: 1,
