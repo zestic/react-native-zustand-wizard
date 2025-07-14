@@ -29,7 +29,8 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     if (steps && steps.length > 0) {
       store.initializeSteps(steps, nextLabel, previousLabel, finishLabel);
     }
-  }, [store, steps, nextLabel, previousLabel, finishLabel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [steps, nextLabel, previousLabel, finishLabel]); // Intentionally exclude store to prevent infinite loop
 
   const contextValue: WizardContextType = {
     store,
