@@ -53,5 +53,5 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage/lcov.info
-        slug: xaddax/react-native-mst-wizard
+        slug: zestic/react-native-zustand-wizard
         fail_ci_if_error: true 
