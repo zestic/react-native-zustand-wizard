@@ -6,14 +6,14 @@ module.exports = {
 
   // Test file patterns - include both unit tests (in src/) and integration tests (in test/)
   testMatch: [
-    '<rootDir>/src/**/*.test.{ts,tsx}',      // Unit tests co-located with source
-    '<rootDir>/test/**/*.test.{ts,tsx}'      // Integration tests in test/ directory
+    '<rootDir>/src/**/*.test.{ts,tsx}', // Unit tests co-located with source
+    '<rootDir>/test/**/*.test.{ts,tsx}', // Integration tests in test/ directory
   ],
 
   // Setup files
   setupFilesAfterEnv: [
     '@testing-library/jest-native/extend-expect',
-    '<rootDir>/test/setup.ts'                // Integration test setup
+    '<rootDir>/test/setup.ts', // Integration test setup
   ],
 
   // Ignore patterns
@@ -21,7 +21,7 @@ module.exports = {
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',
     '<rootDir>/lib/',
-    '<rootDir>/test/fixtures/'               // Don't run fixture files as tests
+    '<rootDir>/test/fixtures/', // Don't run fixture files as tests
   ],
 
   // Coverage configuration
@@ -32,7 +32,7 @@ module.exports = {
     '!src/**/__tests__/**',
     '!src/**/*.d.ts',
     '!src/index.ts',
-    '!test/**/*',                            // Exclude integration tests from coverage
+    '!test/**/*', // Exclude integration tests from coverage
   ],
   coverageDirectory: './coverage',
   coverageReporters: ['lcov', 'text', 'html'],

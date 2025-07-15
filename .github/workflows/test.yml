@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
@@ -19,39 +19,39 @@ jobs:
         node-version: [20.11.0]
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    
-    - name: Enable Corepack and setup Yarn
-      run: |
-        corepack enable
-        corepack prepare yarn@4.1.1 --activate
-    
-    - name: Install dependencies
-      uses: borales/actions-yarn@v4
-      with:
-        cmd: install
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Run tests with coverage
-      run: yarn test:coverage
+      - uses: actions/checkout@v3
 
-    - name: Verify coverage directory
-      run: |
-        echo "Coverage directory contents:"
-        ls -la coverage/
-        echo "Verifying lcov.info:"
-        test -f coverage/lcov.info || (echo "lcov.info not found" && exit 1)
-    
-    - name: Upload coverage report
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage/lcov.info
-        slug: zestic/react-native-zustand-wizard
-        fail_ci_if_error: true 
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Enable Corepack and setup Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@4.1.1 --activate
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run tests with coverage
+        run: yarn test:coverage
+
+      - name: Verify coverage directory
+        run: |
+          echo "Coverage directory contents:"
+          ls -la coverage/
+          echo "Verifying lcov.info:"
+          test -f coverage/lcov.info || (echo "lcov.info not found" && exit 1)
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          slug: zestic/react-native-zustand-wizard
+          fail_ci_if_error: true
