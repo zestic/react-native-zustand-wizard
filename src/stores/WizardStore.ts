@@ -1,14 +1,11 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-// Types for the Zustand store
-export interface Step {
-  id: string;
-  order: number;
-  canMoveNext: boolean;
-  nextLabel: string;
-  previousLabel: string;
-}
+// Import the consolidated Step interface from types
+import type { Step as StepInterface } from '../types';
+
+// Use the consolidated Step interface
+export type Step = StepInterface;
 
 export type StepData = Record<string, unknown>;
 
@@ -21,6 +18,7 @@ export interface WizardState {
   stepData: Map<string, StepData>;
   steps: Step[];
   totalSteps: number;
+  onComplete: ((data: Record<string, StepData>) => void) | undefined;
 }
 
 export interface WizardActions {
@@ -39,11 +37,12 @@ export interface WizardActions {
   ) => void;
   reset: () => Promise<void>;
   initializeSteps: (
-    steps: Omit<Step, 'nextLabel' | 'previousLabel'>[],
+    steps: Step[],
     defaultNextLabel?: string,
     defaultPreviousLabel?: string,
     finishLabel?: string
   ) => void;
+  setOnComplete: (callback?: (data: Record<string, StepData>) => void) => void;
 }
 
 export interface WizardSelectors {
@@ -92,7 +91,7 @@ const computeDerivedState = (
     (s) => s.order === fullState.currentStepPosition
   );
   return {
-    canMoveNext: currentStep ? currentStep.canMoveNext : false,
+    canMoveNext: currentStep ? (currentStep.canMoveNext ?? true) : false,
     isFirstStep: fullState.currentStepPosition === 1,
     isLastStep: fullState.currentStepPosition === fullState.totalSteps,
     nextButtonLabel: currentStep?.nextLabel || 'Next',
@@ -119,6 +118,7 @@ export const useWizardStore = create<WizardStore>()(
         stepData: new Map<string, StepData>(),
         steps: [],
         totalSteps: 0,
+        onComplete: undefined,
         // Initial derived state
         canMoveNext: false,
         isFirstStep: false,
@@ -159,6 +159,14 @@ export const useWizardStore = create<WizardStore>()(
         moveNext: async () => {
           const state = get();
           const nextStep = state.getNextStep();
+
+          // If we're on the last step and there's no next step, call onComplete
+          if (!nextStep && state.isLastStep && state.onComplete) {
+            const wizardData = state.getWizardData();
+            state.onComplete(wizardData);
+            return;
+          }
+
           if (nextStep) {
             set(
               updateStateWithDerived({
@@ -270,7 +278,7 @@ export const useWizardStore = create<WizardStore>()(
         },
 
         initializeSteps: (
-          steps: Omit<Step, 'nextLabel' | 'previousLabel'>[],
+          steps: Step[],
           defaultNextLabel = 'Next',
           defaultPreviousLabel = 'Previous',
           finishLabel = 'Finish'
@@ -281,8 +289,11 @@ export const useWizardStore = create<WizardStore>()(
             const isLast = step.order === lastStepOrder;
             return {
               ...step,
-              nextLabel: isLast ? finishLabel : defaultNextLabel,
-              previousLabel: defaultPreviousLabel,
+              // Use provided labels or defaults
+              canMoveNext: step.canMoveNext ?? true,
+              nextLabel:
+                step.nextLabel || (isLast ? finishLabel : defaultNextLabel),
+              previousLabel: step.previousLabel || defaultPreviousLabel,
             };
           });
 
@@ -302,6 +313,16 @@ export const useWizardStore = create<WizardStore>()(
             }),
             false,
             'initializeSteps'
+          );
+        },
+
+        setOnComplete: (
+          callback?: (data: Record<string, StepData>) => void
+        ) => {
+          set(
+            updateStateWithDerived({ onComplete: callback }),
+            false,
+            'setOnComplete'
           );
         },
 

@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from 'react';
 import { useWizard } from '../context/WizardContext';
 import { NavigationContext, StepContext } from '../types';
 
@@ -9,19 +10,38 @@ import { NavigationContext, StepContext } from '../types';
 export const useStepContext = (stepId: string): StepContext => {
   const store = useWizard();
 
-  return {
-    stepId,
-    updateField: (field: string, value: unknown) => {
+  // Memoize functions to prevent infinite loops in useEffect dependencies
+  const updateField = useCallback(
+    (field: string, value: unknown) => {
       store.updateField(stepId, field, value);
     },
-    getStepData: () => {
-      return store.getStepData(stepId);
+    [store, stepId]
+  );
+
+  const getStepData = useCallback(() => {
+    return store.getStepData(stepId);
+  }, [store, stepId]);
+
+  const canMoveNext = useCallback(
+    (canMove: boolean) => {
+      // Only update if the value actually changed to prevent unnecessary re-renders
+      const currentStep = store.getStepById(stepId);
+      if (currentStep && currentStep.canMoveNext !== canMove) {
+        store.updateStepProperty(stepId, 'canMoveNext', canMove);
+      }
     },
-    canMoveNext: (canMoveNext: boolean) => {
-      // Update the step's canMoveNext property using the new method
-      store.updateStepProperty(stepId, 'canMoveNext', canMoveNext);
-    },
-  };
+    [store, stepId]
+  );
+
+  return useMemo(
+    () => ({
+      stepId,
+      updateField,
+      getStepData,
+      canMoveNext,
+    }),
+    [stepId, updateField, getStepData, canMoveNext]
+  );
 };
 
 /**
@@ -31,20 +51,37 @@ export const useStepContext = (stepId: string): StepContext => {
 export function useNavigationContext(): NavigationContext {
   const store = useWizard();
 
-  return {
-    isPreviousHidden: store.isFirstStep,
-    isNextDisabled: !store.canMoveNext,
-    nextLabel: store.nextButtonLabel,
-    previousLabel: store.previousButtonLabel,
-    currentStepPosition: store.currentStepPosition,
-    totalSteps: store.totalSteps,
-    onNext: async () => {
-      await store.moveNext();
-    },
-    onPrevious: async () => {
-      await store.moveBack();
-    },
-  };
+  // Memoize navigation functions to prevent unnecessary re-renders
+  const onNext = useCallback(async () => {
+    await store.moveNext();
+  }, [store]);
+
+  const onPrevious = useCallback(async () => {
+    await store.moveBack();
+  }, [store]);
+
+  return useMemo(
+    () => ({
+      isPreviousHidden: store.isFirstStep,
+      isNextDisabled: !store.canMoveNext,
+      nextLabel: store.nextButtonLabel,
+      previousLabel: store.previousButtonLabel,
+      currentStepPosition: store.currentStepPosition,
+      totalSteps: store.totalSteps,
+      onNext,
+      onPrevious,
+    }),
+    [
+      store.isFirstStep,
+      store.canMoveNext,
+      store.nextButtonLabel,
+      store.previousButtonLabel,
+      store.currentStepPosition,
+      store.totalSteps,
+      onNext,
+      onPrevious,
+    ]
+  );
 }
 
 /**

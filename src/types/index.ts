@@ -59,6 +59,7 @@ export type WizardProps = {
   nextLabel?: string;
   previousLabel?: string;
   finishLabel?: string;
+  onComplete?: (data: Record<string, StepData>) => void;
   renderLoading?: () => React.ReactNode;
   renderNavigation?: React.ComponentType<WizardNavigationProps>;
 };

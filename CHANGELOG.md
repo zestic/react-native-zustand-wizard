@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2025-07-15
+
+### Added
+
+- **onComplete callback support** - Added `onComplete` prop to `WizardProps` for handling wizard completion
+- **Professional integration test structure** - Moved integration tests to `test/` directory following industry standards
+- **Comprehensive test documentation** - Added detailed documentation for test structure and conventions
+- **Clean build output** - Integration tests now excluded from published package
+
+### Fixed
+
+- **Critical infinite loop bug** - Fixed infinite re-render loop in `useStepContext.canMoveNext` using useCallback and memoization
+- **Step interface inconsistency** - Consolidated conflicting Step interfaces into single consistent definition
+- **Component architecture clarity** - Removed store prop passing, enforced hooks-only approach for step components
+- **Variable shadowing warning** - Fixed ESLint warning in wizardUtils.ts
+- **TypeScript any type usage** - Improved type safety in test setup
+
+### Changed
+
+- **Hooks-only architecture** - Step components now work exclusively with hooks, no store prop needed
+- **Enhanced error handling** - Better error handling for navigation and async operations
+- **Improved code quality** - All linting errors and warnings resolved
+- **Test structure reorganization** - Integration tests moved from `src/integration/` to `test/integration/`
+
+### Technical Improvements
+
+- **Performance optimizations** - Eliminated unnecessary re-renders with proper memoization
+- **Type safety enhancements** - Consolidated interfaces and improved TypeScript definitions
+- **Build optimization** - Cleaner published package without test files
+- **Developer experience** - Better error messages and clearer API usage patterns
+
+### Test Coverage
+
+- **182 total tests** - All tests passing with comprehensive coverage
+- **Unit tests**: 176 tests covering all library functionality
+- **Integration tests**: 6 tests documenting library status and test environment
+- **Code coverage**: Maintains 80%+ statements/functions, 70%+ branches
+
 ## [0.1.3] - 2024-07-13
 
 ### Added

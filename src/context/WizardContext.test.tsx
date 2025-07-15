@@ -29,6 +29,7 @@ const mockStore = {
   getWizardData: jest.fn(() => ({})),
   getNextStep: jest.fn(),
   getPreviousStep: jest.fn(),
+  setOnComplete: jest.fn(), // Add the missing setOnComplete method
   steps: [],
 };
 

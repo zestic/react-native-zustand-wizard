@@ -36,10 +36,11 @@
       "*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "__tests__/**/*"],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "lib",
+    "test/**/*",                    // Exclude integration tests directory
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.stories.tsx"

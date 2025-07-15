@@ -115,7 +115,10 @@ describe('wizardUtils', () => {
     });
 
     it('should call store updateStepProperty when canMoveNext is called', () => {
-      const mockStore = createMockStore();
+      // Mock getStepById to return a step with canMoveNext: false so the update will be called
+      const mockStore = createMockStore({
+        getStepById: jest.fn(() => ({ id: 'test-step', canMoveNext: false })),
+      });
       mockUseWizard.mockReturnValue(mockStore);
 
       const { result } = renderHook(() => useStepContext('test-step'));
@@ -129,6 +132,22 @@ describe('wizardUtils', () => {
         'canMoveNext',
         true
       );
+    });
+
+    it('should not call updateStepProperty when canMoveNext value is unchanged', () => {
+      // Mock getStepById to return a step with canMoveNext: true (same as what we're setting)
+      const mockStore = createMockStore({
+        getStepById: jest.fn(() => ({ id: 'test-step', canMoveNext: true })),
+      });
+      mockUseWizard.mockReturnValue(mockStore);
+
+      const { result } = renderHook(() => useStepContext('test-step'));
+
+      act(() => {
+        result.current.canMoveNext(true); // Same value as current
+      });
+
+      expect(mockStore.updateStepProperty).not.toHaveBeenCalled();
     });
 
     it('should handle different step IDs', () => {

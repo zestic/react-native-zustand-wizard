@@ -1,18 +1,21 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useWizardStore, WizardStore, Step } from '../stores/WizardStore';
+import type { StepData } from '../types';
 
 interface WizardContextType {
   store: WizardStore;
+  onComplete?: (data: Record<string, StepData>) => void;
 }
 
 const WizardContext = createContext<WizardContextType | null>(null);
 
 interface WizardProviderProps {
   children: ReactNode;
-  steps: Omit<Step, 'nextLabel' | 'previousLabel'>[];
+  steps: Step[];
   nextLabel?: string;
   previousLabel?: string;
   finishLabel?: string;
+  onComplete?: (data: Record<string, StepData>) => void;
 }
 
 export const WizardProvider: React.FC<WizardProviderProps> = ({
@@ -21,6 +24,7 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
   nextLabel = 'Next',
   previousLabel = 'Previous',
   finishLabel = 'Finish',
+  onComplete,
 }) => {
   const store = useWizardStore();
 
@@ -32,8 +36,15 @@ export const WizardProvider: React.FC<WizardProviderProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [steps, nextLabel, previousLabel, finishLabel]); // Intentionally exclude store to prevent infinite loop
 
+  // Set the onComplete callback when it changes
+  useEffect(() => {
+    store.setOnComplete(onComplete);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onComplete]); // Intentionally exclude store to prevent infinite loop
+
   const contextValue: WizardContextType = {
     store,
+    ...(onComplete && { onComplete }),
   };
 
   return (

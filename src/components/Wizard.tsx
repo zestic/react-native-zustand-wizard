@@ -11,6 +11,7 @@ export const Wizard: React.FC<WizardProps> = ({
   nextLabel = 'Next',
   previousLabel = 'Back',
   finishLabel = 'Finish',
+  onComplete,
   renderLoading,
   renderNavigation,
 }) => {
@@ -43,13 +44,16 @@ export const Wizard: React.FC<WizardProps> = ({
     return registry;
   }, [processedSteps]);
 
+  const providerProps = {
+    steps: processedSteps,
+    nextLabel,
+    previousLabel,
+    finishLabel,
+    ...(onComplete && { onComplete }),
+  };
+
   return (
-    <WizardProvider
-      steps={processedSteps.map(({ component: _component, ...step }) => step)}
-      nextLabel={nextLabel}
-      previousLabel={previousLabel}
-      finishLabel={finishLabel}
-    >
+    <WizardProvider {...providerProps}>
       <WizardContentWithRegistry
         componentRegistry={componentRegistry}
         renderLoading={renderLoading}
@@ -89,7 +93,7 @@ const WizardContentWithRegistry: React.FC<{
 
   return (
     <View style={styles.container}>
-      {CurrentStepComponent && <CurrentStepComponent store={store} />}
+      {CurrentStepComponent && <CurrentStepComponent />}
 
       {renderNavigation ? (
         React.createElement(renderNavigation)
